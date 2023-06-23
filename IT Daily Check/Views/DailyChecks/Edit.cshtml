@@ -1,4 +1,4 @@
-﻿@model IT_Daily_Check.Models.DailyCheck
+﻿@model IT_Daily_Check.Models.ViewModels.DailyCheckViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -11,17 +11,11 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                <input asp-for="Name" readonly class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Date_Created" class="control-label"></label>
-                <input asp-for="Date_Created" class="form-control" />
-                <span asp-validation-for="Date_Created" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Location" class="control-label"></label>
@@ -30,11 +24,136 @@
             </div>
             <div class="form-group">
                 <label asp-for="Created_By" class="control-label"></label>
-                <input asp-for="Created_By" class="form-control" />
+                <input asp-for="Created_By" readonly class="form-control" />
                 <span asp-validation-for="Created_By" class="text-danger"></span>
             </div>
+            <br />
+            <h3>Internet Service</h3>
+
+            <div id="internetChecksContainer">
+                @for (var i = 0; i < Model.InternetServiceSpeedcheckViewModels.Count; i++)
+                {
+                    <div class="formgroup-row" style="display:flex">
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" class="control-label"></label>
+                            <select asp-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" class="form-control" style="width:100px">
+                                @foreach (var isp in ViewBag.ISPs)
+                                {
+                                    <option value="@isp.Name">@isp.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" class="control-label"></label>
+                            <input asp-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" class="form-control" />
+                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" class="text-danger"></span>
+                        </div>
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" class="control-label"></label>
+                            <input asp-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" class="form-control" />
+                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+            <br />
+            <div class="form-group">
+                <button type="button" onclick="addInternetCheck()" class="btn btn-primary">Add Internet Speed Check</button>
+                <button type="button" onclick="removeLastInternetCheck()" class="btn btn-secondary">Remove</button>
+            </div>
+
+            <br />
+            <br />
+
+            <br />
+            <h3>Device/Services</h3>
+
+            <div id="deviceChecksContainer">
+                @for (var i = 0; i < Model.DeviceServicecheckViewModels.Count; i++)
+                {
+                    <div class="formgroup-row" style="display:flex">
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="DeviceServicecheckViewModels[i].DeviceName" class="control-label"></label>
+                            <select asp-for="DeviceServicecheckViewModels[i].DeviceName" class="form-control">
+                                @foreach (var deviceService in ViewBag.DeviceServices)
+                                {
+                                    <option value="@deviceService.Name">@deviceService.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DeviceServicecheckViewModels[i].DeviceName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="DeviceServicecheckViewModels[i].Status" class="control-label"></label>
+                            <select asp-for="DeviceServicecheckViewModels[i].Status" class="form-control">
+                                @foreach (var status in ViewBag.Statuses)
+                                {
+                                    <option value="@status.Name">@status.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DeviceServicecheckViewModels[i].Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+            <br />
+            <div class="form-group">
+                <button type="button" onclick="addDeviceCheck()" class="btn btn-primary">Add Device/Service Check</button>
+                <button type="button" onclick="removeLastDeviceCheck()" class="btn btn-secondary">Remove</button>
+            </div>
+
+            <br />
+            <br />
+
+            <br />
+            <h3>CCTV</h3>
+
+            <div id="cctvChecksContainer">
+                @for (var i = 0; i < Model.CCTVcheckViewModels.Count; i++)
+                {
+                    <div class="formgroup-row" style="display:flex">
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="CCTVcheckViewModels[i].Description" class="control-label"></label>
+                            <select asp-for="CCTVcheckViewModels[i].Description" class="form-control" style="width:400px">
+                                @foreach (var cctv in ViewBag.CCTVs)
+                                {
+                                    <option value="@cctv.Description">@cctv.Description</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CCTVcheckViewModels[i].Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="CCTVcheckViewModels[i].Results" class="control-label"></label>
+                            <input asp-for="CCTVcheckViewModels[i].Results" class="form-control" style="width:300px"/>
+                            <span asp-validation-for="CCTVcheckViewModels[i].Results" class="text-danger"></span>
+                        </div>
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="CCTVcheckViewModels[i].Reasons" class="control-label"></label>
+                            <input asp-for="CCTVcheckViewModels[i].Reasons" class="form-control" style="width:300px" />
+                            <span asp-validation-for="CCTVcheckViewModels[i].Reasons" class="text-danger"></span>
+                        </div>                       
+                    </div>
+                    <div class="formgroup-row" style="margin-right:10px">
+                        <label asp-for="CCTVcheckViewModels[i].Comments" class="control-label"></label>
+                        <input asp-for="CCTVcheckViewModels[i].Comments" class="form-control" style="width:1020px" />                        
+                        <span asp-validation-for="CCTVcheckViewModels[i].Comments" class="text-danger"></span>
+                    </div>
+                }
+            </div>
+            <br />
+            <div class="form-group">
+                <button type="button" onclick="addCCTVCheck()" class="btn btn-primary">Add CCTV Check</button>
+                <button type="button" onclick="removeLastCCTVCheck()" class="btn btn-secondary">Remove</button>
+            </div>
+
+            <br />
+            <br />
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>
@@ -45,5 +164,226 @@
 </div>
 
 @section Scripts {
+
+
+    <script>
+        var internetServices = @Html.Raw(Json.Serialize(ViewBag.ISPs));
+        var internetCheckCount = @Model.InternetServiceSpeedcheckViewModels.Count;
+
+        function addInternetCheck() {
+            var internetCheckDiv = document.createElement('div');
+            internetCheckDiv.className = 'formgroup-row';
+            internetCheckDiv.style.display = 'flex';
+
+            var ispSelect = document.createElement('select');
+            ispSelect.className = 'form-control';
+            ispSelect.name = 'InternetServiceSpeedcheckViewModels[' + internetCheckCount + '].ISP_NAME';
+            ispSelect.style.marginRight = '10px';
+            ispSelect.style.marginTop = '10px';
+            ispSelect.innerHTML = internetServices.map(function (internetService) {
+                return '<option value="' + internetService.name + '">' + internetService.name + '</option>';
+            }).join('');
+
+            var ispValidationSpan = document.createElement('span');
+            ispValidationSpan.className = 'text-danger field-validation-valid';
+            ispValidationSpan.setAttribute('data-valmsg-for', 'InternetServiceSpeedcheckViewModels[' + internetCheckCount + '].ISP_NAME');
+
+            internetCheckDiv.appendChild(ispSelect);
+            internetCheckDiv.appendChild(ispValidationSpan);
+
+            var downloadSpeedInput = document.createElement('input');
+            downloadSpeedInput.className = 'form-control';
+            downloadSpeedInput.name = 'InternetServiceSpeedcheckViewModels[' + internetCheckCount + '].DownloadSpeed';
+            downloadSpeedInput.style.marginRight = '10px';
+            downloadSpeedInput.style.marginTop = '10px';
+            downloadSpeedInput.placeholder = 'Download Speed';
+
+            var downloadSpeedValidationSpan = document.createElement('span');
+            downloadSpeedValidationSpan.className = 'text-danger field-validation-valid';
+            downloadSpeedValidationSpan.setAttribute('data-valmsg-for', 'InternetServiceSpeedcheckViewModels[' + internetCheckCount + '].DownloadSpeed');
+
+            internetCheckDiv.appendChild(downloadSpeedInput);
+            internetCheckDiv.appendChild(downloadSpeedValidationSpan);
+
+            var uploadSpeedInput = document.createElement('input');
+            uploadSpeedInput.className = 'form-control';
+            uploadSpeedInput.name = 'InternetServiceSpeedcheckViewModels[' + internetCheckCount + '].UploadSpeed';
+            uploadSpeedInput.style.marginRight = '10px';
+            uploadSpeedInput.style.marginTop = '10px';
+            uploadSpeedInput.placeholder = 'Upload Speed';
+
+            var uploadSpeedValidationSpan = document.createElement('span');
+            uploadSpeedValidationSpan.className = 'text-danger field-validation-valid';
+            uploadSpeedValidationSpan.setAttribute('data-valmsg-for', 'InternetServiceSpeedcheckViewModels[' + internetCheckCount + '].UploadSpeed');
+
+            internetCheckDiv.appendChild(uploadSpeedInput);
+            internetCheckDiv.appendChild(uploadSpeedValidationSpan);
+
+            document.getElementById('internetChecksContainer').appendChild(internetCheckDiv);
+
+            internetCheckCount++;
+        }
+
+        function removeLastInternetCheck() {
+            var internetChecksContainer = document.getElementById('internetChecksContainer');
+            var internetChecks = internetChecksContainer.getElementsByClassName('formgroup-row');
+
+            if (internetChecks.length > 0) {
+                var lastInternetCheck = internetChecks[internetChecks.length - 1];
+                lastInternetCheck.remove();
+
+                internetCheckCount--;
+            }
+        }
+    </script>
+
+    <script>
+        var deviceServices = @Html.Raw(Json.Serialize(ViewBag.DeviceServices));
+        var statuses = @Html.Raw(Json.Serialize(ViewBag.Statuses));
+        var deviceCheckCount = @Model.DeviceServicecheckViewModels.Count;
+
+        function addDeviceCheck() {
+            var deviceCheckDiv = document.createElement('div');
+            deviceCheckDiv.className = 'form-group';
+            deviceCheckDiv.style.display = 'flex';
+            deviceCheckDiv.style.marginTop = '10px';
+
+            var deviceServiceSelect = document.createElement('select');
+            deviceServiceSelect.className = 'form-control';
+            deviceServiceSelect.name = 'DeviceServicecheckViewModels[' + deviceCheckCount + '].DeviceName';
+            deviceServiceSelect.style.marginRight = '10px';
+            deviceServiceSelect.innerHTML = deviceServices.map(function (deviceService) {
+                return '<option value="' + deviceService.name + '">' + deviceService.name + '</option>';
+            }).join('');
+
+            var deviceServiceValidationSpan = document.createElement('span');
+            deviceServiceValidationSpan.className = 'text-danger field-validation-valid';
+            deviceServiceValidationSpan.setAttribute('data-valmsg-for', 'DeviceServicecheckViewModels[' + deviceCheckCount + '].DeviceName');
+
+            deviceCheckDiv.appendChild(deviceServiceSelect);
+            deviceCheckDiv.appendChild(deviceServiceValidationSpan);
+
+            var statusSelect = document.createElement('select');
+            statusSelect.className = 'form-control';
+            statusSelect.name = 'DeviceServicecheckViewModels[' + deviceCheckCount + '].Status';
+            statusSelect.style.marginRight = '10px';
+            statusSelect.innerHTML = statuses.map(function (status) {
+                return '<option value="' + status.name + '">' + status.name + '</option>';
+            }).join('');
+
+            var statusValidationSpan = document.createElement('span');
+            statusValidationSpan.className = 'text-danger field-validation-valid';
+            statusValidationSpan.setAttribute('data-valmsg-for', 'DeviceServicecheckViewModels[' + deviceCheckCount + '].Status');
+
+            deviceCheckDiv.appendChild(statusSelect);
+            deviceCheckDiv.appendChild(statusValidationSpan);
+
+            document.getElementById('deviceChecksContainer').appendChild(deviceCheckDiv);
+
+            deviceCheckCount++;
+        }
+
+        function removeLastDeviceCheck() {
+            var deviceChecksContainer = document.getElementById('deviceChecksContainer');
+            var deviceChecks = deviceChecksContainer.getElementsByClassName('form-group');
+
+            if (deviceChecks.length > 0) {
+                var lastDeviceCheck = deviceChecks[deviceChecks.length - 1];
+                lastDeviceCheck.remove();
+
+                deviceCheckCount--;
+            }
+        }
+    </script>
+
+    <script>
+        var cctvServices = @Html.Raw(Json.Serialize(ViewBag.CCTVs));        
+        var cctvCount = @Model.CCTVcheckViewModels.Count;
+
+        function addCCTVCheck() {
+            var cctvCheckDiv = document.createElement('div');
+            cctvCheckDiv.className = 'formgroup-row';
+            cctvCheckDiv.style.display = 'flex';
+
+            var descriptionSelect = document.createElement('select');
+            descriptionSelect.className = 'form-control';
+            descriptionSelect.name = 'CCTVcheckViewModels[' + cctvCount + '].Description';
+            descriptionSelect.style.width = '400px';
+            descriptionSelect.style.marginTop = '10px';
+            descriptionSelect.style.marginRight = '10px';
+            descriptionSelect.innerHTML = cctvServices.map(function (cctv) {
+                return '<option value="' + cctv.description + '">' + cctv.description + '</option>';
+            }).join('');
+
+            var descriptionValidationSpan = document.createElement('span');
+            descriptionValidationSpan.className = 'text-danger field-validation-valid';
+            descriptionValidationSpan.setAttribute('data-valmsg-for', 'CCTVcheckViewModels[' + cctvCount + '].Description');
+
+            cctvCheckDiv.appendChild(descriptionSelect);
+            cctvCheckDiv.appendChild(descriptionValidationSpan);
+
+            var resultsInput = document.createElement('input');
+            resultsInput.className = 'form-control';
+            resultsInput.name = 'CCTVcheckViewModels[' + cctvCount + '].Results';
+            resultsInput.style.width = '300px';
+            resultsInput.style.marginTop = '10px';
+            resultsInput.style.marginRight = '10px';
+            resultsInput.placeholder = 'Results';
+
+            var resultsValidationSpan = document.createElement('span');
+            resultsValidationSpan.className = 'text-danger field-validation-valid';
+            resultsValidationSpan.setAttribute('data-valmsg-for', 'CCTVcheckViewModels[' + cctvCount + '].Results');
+
+            cctvCheckDiv.appendChild(resultsInput);
+            cctvCheckDiv.appendChild(resultsValidationSpan);
+
+            var reasonsInput = document.createElement('input');
+            reasonsInput.className = 'form-control';
+            reasonsInput.name = 'CCTVcheckViewModels[' + cctvCount + '].Reasons';
+            reasonsInput.style.width = '300px';
+            reasonsInput.style.marginTop = '10px';
+            reasonsInput.style.marginRight = '10px';
+            reasonsInput.placeholder = 'Reasons';
+
+            var reasonsValidationSpan = document.createElement('span');
+            reasonsValidationSpan.className = 'text-danger field-validation-valid';
+            reasonsValidationSpan.setAttribute('data-valmsg-for', 'CCTVcheckViewModels[' + cctvCount + '].Reasons');
+
+            cctvCheckDiv.appendChild(reasonsInput);
+            cctvCheckDiv.appendChild(reasonsValidationSpan);
+
+            var commentsInput = document.createElement('input');
+            commentsInput.className = 'form-control';
+            commentsInput.name = 'CCTVcheckViewModels[' + cctvCount + '].Comments';
+            commentsInput.style.width = '1020px';
+            commentsInput.style.marginTop = '10px';
+            commentsInput.style.marginRight = '10px';
+            commentsInput.placeholder = 'Comments';
+
+            var commentsValidationSpan = document.createElement('span');
+            commentsValidationSpan.className = 'text-danger field-validation-valid';
+            commentsValidationSpan.setAttribute('data-valmsg-for', 'CCTVcheckViewModels[' + cctvCount + '].Comments');
+
+            cctvCheckDiv.appendChild(commentsInput);
+            cctvCheckDiv.appendChild(commentsValidationSpan);
+
+            document.getElementById('cctvChecksContainer').appendChild(cctvCheckDiv);
+
+            cctvCount++;
+        }
+
+        function removeLastCCTVCheck() {
+            var cctvChecksContainer = document.getElementById('cctvChecksContainer');
+            var cctvChecks = cctvChecksContainer.getElementsByClassName('formgroup-row');
+
+            if (cctvChecks.length > 0) {
+                var lastCCTVCheck = cctvChecks[cctvChecks.length - 1];
+                lastCCTVCheck.remove();
+
+                cctvCount--;
+            }
+        }
+    </script>
+
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

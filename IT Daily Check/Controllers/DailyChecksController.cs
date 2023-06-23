@@ -12,6 +12,8 @@ using IT_Daily_Check.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Xml.Linq;
+using Org.BouncyCastle.Asn1.Ocsp;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace IT_Daily_Check.Controllers
 {
@@ -136,54 +138,242 @@ namespace IT_Daily_Check.Controllers
         }
 
         // GET: DailyChecks/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.DailyChecks == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Edit(int? id)
+        //{
+        //    if (id == null || _context.DailyChecks == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var dailyCheck = await _context.DailyChecks.FindAsync(id);
+        //    var dailyCheck = await _context.DailyChecks.FindAsync(id);
+        //    if (dailyCheck == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return View(dailyCheck);
+        //}
+
+        public async Task<IActionResult> Edit(int id)
+        {
+
+            ViewBag.ISPs = _context.internetServiceProviders.ToList();
+            ViewBag.DeviceServices = _context.DeviceServices.ToList();
+            ViewBag.CCTVs = _context.CCTVs.ToList();
+            ViewBag.statuses = _context.Results.ToList();
+            ViewBag.Locations = _context.Locations.ToList();
+
+            // Retrieve the DailyCheck and its associated DeviceChecks from the database
+            var dailyCheck = await _context.DailyChecks.Include(dc => dc.DeviceServicechecks)
+                                                        .Include(c => c.CCTVchecks)
+                                                        .Include(i => i.InternetServiceSpeedchecks)
+                                                        .FirstOrDefaultAsync(dc => dc.Id == id);
+
             if (dailyCheck == null)
             {
                 return NotFound();
             }
-            return View(dailyCheck);
+
+            // Map the DailyCheck and DeviceChecks to the view model
+            var viewModel = new DailyCheckViewModel
+            {
+                Id = dailyCheck.Id,
+                Name = dailyCheck.Name,
+                Location = dailyCheck.Location,
+                Created_By = dailyCheck.Created_By,
+                Date_Created = dailyCheck.Date_Created,
+                DeviceServicecheckViewModels = dailyCheck.DeviceServicechecks.Select(deviceCheck => new DeviceServicecheckViewModel
+                {
+                    id = deviceCheck.Id,
+                    DeviceName = deviceCheck.DeviceName,
+                    Status = deviceCheck.Status
+                }).ToList(),
+                InternetServiceSpeedcheckViewModels = dailyCheck.InternetServiceSpeedchecks.Select(internetService => new InternetServiceSpeedcheckViewModel
+                {
+                    Id = internetService.Id,
+                    ISP_NAME = internetService.ISP_NAME,
+                    DownloadSpeed = internetService.DownloadSpeed,
+                    UploadSpeed = internetService.UploadSpeed
+                }).ToList(),
+                CCTVcheckViewModels = dailyCheck.CCTVchecks.Select(cctvCheck => new CCTVcheckViewModel 
+                { 
+                    Id = cctvCheck.Id,
+                    Description = cctvCheck.Description,
+                    Reasons = cctvCheck.Reasons,
+                    Results = cctvCheck.Results,
+                    Comments = cctvCheck.Comments
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         // POST: DailyChecks/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Date_Created,Location,Created_By")] DailyCheck dailyCheck)
+        //{
+        //    if (id != dailyCheck.Id)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            _context.Update(dailyCheck);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!DailyCheckExists(dailyCheck.Id))
+        //            {
+        //                return NotFound();
+        //            }
+        //            else
+        //            {
+        //                throw;
+        //            }
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(dailyCheck);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Date_Created,Location,Created_By")] DailyCheck dailyCheck)
+        public async Task<IActionResult> Edit(int id, DailyCheckViewModel viewModel)
         {
-            if (id != dailyCheck.Id)
+            if (id != viewModel.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Retrieve the existing DailyCheck from the database
+                var dailyCheck = await _context.DailyChecks.Include(dc => dc.DeviceServicechecks)
+                                                            .Include(i => i.InternetServiceSpeedchecks)
+                                                            .Include(c => c.CCTVchecks)
+                                                            .FirstOrDefaultAsync(dc => dc.Id == id);
+
+                if (dailyCheck == null)
                 {
-                    _context.Update(dailyCheck);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                // Update the properties of the DailyCheck
+                dailyCheck.Location = viewModel.Location;
+
+                List<InternetServiceSpeedcheckViewModel> internetServiceSpeedcheckViewModel = viewModel.InternetServiceSpeedcheckViewModels;
+                if (internetServiceSpeedcheckViewModel != null)
                 {
-                    if (!DailyCheckExists(dailyCheck.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ICollection<InternetServiceSpeedcheck> internetServiceSpeedchecks = internetServiceSpeedcheckViewModel
+                        .GroupBy(dc => dc.ISP_NAME)
+                        .Select(group => group.First())
+                        .Select(dc => new InternetServiceSpeedcheck
+                        {
+                            Id = dc.Id,
+                            ISP_NAME = dc.ISP_NAME,
+                            DownloadSpeed = dc.DownloadSpeed,
+                            UploadSpeed = dc.UploadSpeed
+                        }).ToList();
+
+
+                    // Update the DeviceChecks by comparing the submitted DeviceChecks with the existing ones
+                    UpdateInternetServiceChecks(dailyCheck.InternetServiceSpeedchecks, internetServiceSpeedchecks);
                 }
-                return RedirectToAction(nameof(Index));
+
+                // Map Device Service Check Data being retrived from Frontedn
+                List<DeviceServicecheckViewModel> deviceChecksViewModel = viewModel.DeviceServicecheckViewModels;
+                if (deviceChecksViewModel != null)
+                {
+                    ICollection<DeviceServicecheck> deviceChecks = deviceChecksViewModel
+                        .GroupBy(dc => dc.DeviceName)
+                        .Select(group => group.First())
+                        .Select(dc => new DeviceServicecheck
+                        {
+                            Id = dc.id,
+                            DeviceName = dc.DeviceName,
+                            Status = dc.Status
+                        }).ToList();
+
+
+                    // Update the DeviceChecks by comparing the submitted DeviceChecks with the existing ones
+                    UpdateDeviceChecks(dailyCheck.DeviceServicechecks, deviceChecks);
+                }
+
+                
+                    List<CCTVcheckViewModel> cCTVcheckViewModel = viewModel.CCTVcheckViewModels;
+                if (cCTVcheckViewModel != null)
+                {
+                    ICollection<CCTVcheck> cCTVchecks = cCTVcheckViewModel
+                        .GroupBy(dc => dc.Description)
+                        .Select(group => group.First())
+                        .Select(dc => new CCTVcheck
+                        {
+                            Id = dc.Id,
+                            Description = dc.Description,
+                            Results = dc.Results,
+                            Reasons = dc.Reasons,
+                            Comments = dc.Comments
+                        }).ToList();
+
+
+                    // Update the DeviceChecks by comparing the submitted DeviceChecks with the existing ones
+                    UpdateCctvServiceChecks(dailyCheck.CCTVchecks, cCTVchecks);
+                }
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Edit));
             }
-            return View(dailyCheck);
+            catch (DbUpdateConcurrencyException)
+            {
+                // Handle concurrency issues
+                // ...
+                throw;
+            }
+
+            return View(viewModel);
+        }
+
+        private void UpdateDeviceChecks(ICollection<DeviceServicecheck> existingDeviceChecks, ICollection<DeviceServicecheck> submittedDeviceChecks)
+        {
+            // Remove any existing DeviceChecks that are not present in the submitted DeviceChecks
+            existingDeviceChecks.Clear();
+
+            // Update or add the submitted DeviceChecks
+            foreach (var submittedDeviceCheck in submittedDeviceChecks)
+            {
+                existingDeviceChecks.Add(submittedDeviceCheck);
+            }
+        }
+
+        private void UpdateInternetServiceChecks(ICollection<InternetServiceSpeedcheck> existingInternetSpeedChecks, ICollection<InternetServiceSpeedcheck> submittedInternetSpeedChecks)
+        {
+            // Remove any existing DeviceChecks that are not present in the submitted DeviceChecks
+            existingInternetSpeedChecks.Clear();
+
+            // Update or add the submitted DeviceChecks
+            foreach (var submittedInternetSpeedCheck in submittedInternetSpeedChecks)
+            {
+                existingInternetSpeedChecks.Add(submittedInternetSpeedCheck);
+            }
+        }
+
+        private void UpdateCctvServiceChecks(ICollection<CCTVcheck> existingCctvChecks, ICollection<CCTVcheck> submittedCctvChecks)
+        {
+            // Remove any existing DeviceChecks that are not present in the submitted DeviceChecks
+            existingCctvChecks.Clear();
+
+            // Update or add the submitted DeviceChecks
+            foreach (var submittedCctvCheck in submittedCctvChecks)
+            {
+                existingCctvChecks.Add(submittedCctvCheck);
+            }
         }
 
         // GET: DailyChecks/Delete/5
