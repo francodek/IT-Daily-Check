@@ -14,6 +14,11 @@ using System.Security.Claims;
 using System.Xml.Linq;
 using Org.BouncyCastle.Asn1.Ocsp;
 using static System.Net.Mime.MediaTypeNames;
+using MimeKit;
+using IT_Daily_Check.Settings;
+using MailKit.Security;
+using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 
 namespace IT_Daily_Check.Controllers
 {
@@ -22,13 +27,15 @@ namespace IT_Daily_Check.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpcontextAccessor;
         private readonly UserManager<User> _userManager;
+        private readonly MailSettings _mailSettings;
 
 
-        public DailyChecksController(ApplicationDbContext context, IHttpContextAccessor httpcontextAccessor, UserManager<User> userManager = null)
+        public DailyChecksController(ApplicationDbContext context, IHttpContextAccessor httpcontextAccessor, UserManager<User> userManager, IOptions<MailSettings> mailSettings)
         {
             _context = context;
             _httpcontextAccessor = httpcontextAccessor;
             _userManager = userManager;
+            _mailSettings = mailSettings.Value;
         }
 
         // GET: DailyChecks
@@ -134,24 +141,22 @@ namespace IT_Daily_Check.Controllers
             // Save the DailyCheck along with the associated checks
             _context.DailyChecks.Add(dailyCheck);
             _context.SaveChanges();
-            return RedirectToAction("Index");   
+
+            string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + Url.Action("Edit", "DailyChecks") + "/" + dailyCheck.Id;
+            var email = new MimeMessage();
+            email.Sender = MailboxAddress.Parse(user.Email);
+            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+            email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : "OFFDOCK AND BMS DAILY CHECK";           
+            email.Body = new BodyBuilder { HtmlBody = string.Format("<P>Good Morning All</P> <br /><h3 style='color:black;'>Click on the link below to view details of the daily check <br />{0}</h3>", url) }.ToMessageBody();
+            using var smtp = new SmtpClient();
+            smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
+            smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
+            await smtp.SendAsync(email);
+            smtp.Disconnect(true);
+
+            return RedirectToAction("Index");
         }
-
-        // GET: DailyChecks/Edit/5
-        //public async Task<IActionResult> Edit(int? id)
-        //{
-        //    if (id == null || _context.DailyChecks == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var dailyCheck = await _context.DailyChecks.FindAsync(id);
-        //    if (dailyCheck == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(dailyCheck);
-        //}
+        
 
         public async Task<IActionResult> Edit(int id)
         {
