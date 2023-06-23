@@ -1,0 +1,241 @@
+﻿@model IT_Daily_Check.Models.ViewModels.DailyCheckViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>DailyCheck</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            
+            
+            <div class="form-group">
+                <label asp-for="Location" class="control-label"></label>
+                <select asp-for="Location" class="form-control">
+                    <option value="">-- Select Location --</option>
+                    @foreach (var location in ViewBag.Locations)
+                    {
+                        <option value="@location.Name">@location.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>            
+
+            <h3>Internet Speed Check</h3>
+
+            <div id="internetChecks">
+                <div class="internetChecks" style="display:flex">
+                    <select name="InternetServiceSpeedcheckViewModels[0].ISP_NAME" style="margin-right:10px">
+                        @foreach (var isp in ViewBag.ISPs)
+                        {
+                            <option value="@isp.Name">@isp.Name</option>
+                        }
+                    </select>
+                    <input type="text" name="InternetServiceSpeedcheckViewModels[0].DownloadSpeed" class="form-control" placeholder="Download" style="margin-right:10px;" />
+                    <input type="text" name="InternetServiceSpeedcheckViewModels[0].UploadSpeed" class="form-control" placeholder="Upload" style="margin-right:10px;" />
+                </div>
+            </div>
+            <br />
+            <button type="button" class="btn btn-primary" onclick="addInternetCheck(isps)">Add Internet Speed Check</button>
+            <button type="button" class="btn btn-danger" onclick="removeLastInternetCheck()">Remove</button>
+            <br />
+            <br />
+            <h3>Devices/Services Check</h3>
+
+            <div id="deviceChecks">
+                <div class="deviceChecks" style="display:flex">
+                    <select name="DeviceServicecheckViewModels[0].DeviceName" style="margin-right:10px">
+                        @foreach (var deviceService in ViewBag.DeviceServices)
+                        {
+                            <option value="@deviceService.Name">@deviceService.Name</option>
+                        }
+                    </select>
+                    <select name="DeviceServicecheckViewModels[0].Status" style="margin-right:10px">
+                        @foreach (var deviceService in ViewBag.Statuses)
+                        {
+                            <option value="@deviceService.Name">@deviceService.Name</option>
+                        }
+                    </select>
+                    
+                </div>
+            </div>
+            <br />
+            <button type="button" class="btn btn-primary" onclick="addDeviceCheck(deviceServices, statuses)">Add Device Check</button>
+            <button type="button" class="btn btn-danger" onclick="removeLastDeviceCheck()">Remove</button>
+            <br />
+            <br />
+            <h3>CCTV Check</h3>
+
+            <div id="cctvChecks">
+                <div class="cctvChecks" style="display:flex">
+                    <select name="CCTVcheckViewModels[0].Description" class="form-control" style="width:700px; margin-right:10px">
+                        @foreach (var cctv in ViewBag.CCTVs)
+                        {
+                            <option value="@cctv.Description">@cctv.Description</option>
+                        }
+                    </select>                    
+
+                    <input type="text" name="CCTVcheckViewModels[0].Results" placeholder="Result" class="form-control" style="width: 200px; margin-right: 10px;"/>
+                    <input type="text" name="CCTVcheckViewModels[0].Reasons" placeholder="Reason" class="form-control" style="width: 200px; margin-right: 10px;"/>
+                    <div>
+                        <textarea name="CCTVcheckViewModels[0].Comments" placeholder="Comments" style="width: 400px; height:80px; margin-top:10px; margin-right: 10px;"></textarea>
+                    </div>
+                </div>
+                
+            </div>
+
+            <br />
+            <button type="button" class="btn btn-primary" onclick="addCctvCheck(cctvServices)">Add CCTV Check</button>
+            <button type="button" class="btn btn-danger" onclick="removeLastCctvCheck()">Remove</button>
+            <br />
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+
+    @*Script for adding and removing internet speed checks*@
+    <script>
+        var isps = @Html.Raw(Json.Serialize(ViewBag.ISPs));        
+        var ispcount = 1;
+
+        function addInternetCheck(isps) {
+            var internetSpeedCheckDiv = document.createElement('div');
+            internetSpeedCheckDiv.className = 'internetChecks';
+            internetSpeedCheckDiv.style.display = 'flex';
+            internetSpeedCheckDiv.style.marginTop = '10px'
+
+
+            var internetSpeedOptions = '';
+            for (var i = 0; i < isps.length; i++) {
+                internetSpeedOptions += '<option value="' + isps[i].name + '">' + isps[i].name + '</option>';
+            }
+
+            internetSpeedCheckDiv.innerHTML = '<select name="InternetServiceSpeedcheckViewModels[' + ispcount + '].ISP_NAME" style="margin-right:10px">' +
+                internetSpeedOptions +
+                '</select>' +
+                '<input type="text" name="InternetServiceSpeedcheckViewModels[' + ispcount + '].DownloadSpeed" class="form-control" placeholder="Download" style="margin-right:10px; flex:1" />' +
+                '<input type="text" name="InternetServiceSpeedcheckViewModels[' + ispcount + '].UploadSpeed" class="form-control" placeholder="Upload" style="margin-right:10px; flex:1" />';
+ 
+
+            document.getElementById('internetChecks').appendChild(internetSpeedCheckDiv);
+
+
+            ispcount++;
+        }
+
+        function removeLastInternetCheck() {
+            var internetChecksContainer = document.getElementById('internetChecks');
+            var internetChecks = internetChecksContainer.getElementsByClassName('internetChecks');
+
+            if (internetChecks.length > 0) {
+                var lastinternetChecks = internetChecks[internetChecks.length - 1];
+                lastinternetChecks.remove();
+            }
+        }
+    </script>
+    @*Script for adding and removing device checks*@
+    <script>
+        var deviceServices = @Html.Raw(Json.Serialize(ViewBag.DeviceServices));
+        var statuses = @Html.Raw(Json.Serialize(ViewBag.Statuses));
+        var deviceCheckCount = 1;
+
+        function addDeviceCheck(deviceServices, statuses) {
+            var deviceCheckDiv = document.createElement('div');
+            deviceCheckDiv.className = 'deviceChecks';
+            deviceCheckDiv.style.display = 'flex';
+            deviceCheckDiv.style.marginTop = '10px'
+
+
+            var deviceServiceOptions = '';
+            for (var i = 0; i < deviceServices.length; i++) {
+                deviceServiceOptions += '<option value="' + deviceServices[i].name + '">' + deviceServices[i].name + '</option>';
+            }
+
+            var statusOptions = '';
+            for (var j = 0; j < statuses.length; j++) {
+                statusOptions += '<option value="' + statuses[j].name + '">' + statuses[j].name + '</option>';
+            }
+
+            deviceCheckDiv.innerHTML = '<select name="DeviceServicecheckViewModels[' + deviceCheckCount + '].DeviceName" style="margin-right:10px">' +
+                deviceServiceOptions +
+                '</select>' +
+                '<select name="DeviceServicecheckViewModels[' + deviceCheckCount + '].Status" style="margin-right:10px">' +
+                statusOptions +
+                '</select>'
+            //'<input type="text" name="DeviceChecks[' + deviceCheckCount + '].AdditionalInfo" placeholder="Additional Info" style="margin-right:10px; flex:1" />';
+
+            document.getElementById('deviceChecks').appendChild(deviceCheckDiv);
+
+
+            deviceCheckCount++;
+        }
+
+        function removeLastDeviceCheck() {
+            var deviceChecksContainer = document.getElementById('deviceChecks');
+            var deviceChecks = deviceChecksContainer.getElementsByClassName('deviceChecks');
+
+            if (deviceChecks.length > 0) {
+                var lastDeviceCheck = deviceChecks[deviceChecks.length - 1];
+                lastDeviceCheck.remove();
+            }
+        }
+    </script>
+    @*Script for adding and removing CCTV checks*@
+    <script>
+        var cctvServices = @Html.Raw(Json.Serialize(ViewBag.CCTVs));
+        
+        var cctvCheckCount = 1;
+
+        function addCctvCheck(cctvServices) {
+            var cctvCheckDiv = document.createElement('div');
+            cctvCheckDiv.className = 'cctvChecks';
+            cctvCheckDiv.style.display = 'flex';
+            cctvCheckDiv.style.marginTop = '10px'
+
+
+            var cctvServiceOptions = '';
+            for (var i = 0; i < cctvServices.length; i++) {
+                cctvServiceOptions += '<option value="' + cctvServices[i].description + '">' + cctvServices[i].description + '</option>';
+            }
+
+            cctvCheckDiv.innerHTML = '<select name="CCTVcheckViewModels[' + cctvCheckCount + '].Description" style="margin-right:10px">' +
+                cctvServiceOptions +
+                '</select>' +
+                '<input type="text" name="CCTVcheckViewModels[' + cctvCheckCount + '].Results" class="form-control" placeholder="Result" style="width: 200px; margin-right: 10px; flex:1" />'
+                + '<input type="text" name="CCTVcheckViewModels[' + cctvCheckCount + '].Reasons" placeholder="Reason" class="form-control" style="width: 200px; margin-right: 10px; flex:1" />'
+                + '<div> <textarea name="CCTVcheckViewModels[' + cctvCheckCount + '].Comments" placeholder="Comments" style="width: 400px; height:80px; margin-top:10px; margin-right: 10px;"></textarea></div>';
+            //'<textarea name="CCTVcheckViewModels[' + cctvCheckCount + '].Comments" placeholder="Comments" class="form-control" style="margin-top:10px; margin-right: 10px;"></textarea>';
+
+            document.getElementById('cctvChecks').appendChild(cctvCheckDiv);
+
+
+            cctvCheckCount++;
+        }
+
+        function removeLastCctvCheck() {
+            var cctvChecksContainer = document.getElementById('cctvChecks');
+            var cctvChecks = cctvChecksContainer.getElementsByClassName('cctvChecks');
+
+            if (cctvChecks.length > 0) {
+                var lastCctvCheck = cctvChecks[cctvChecks.length - 1];
+                lastCctvCheck.remove();
+            }
+        }
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using IT_Daily_Check.Data;
 using IT_Daily_Check.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IT_Daily_Check.Controllers
 {
+    [Authorize]
     public class ResultsController : Controller
     {
         private readonly ApplicationDbContext _context;
