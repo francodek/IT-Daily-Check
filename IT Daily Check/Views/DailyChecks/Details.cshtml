@@ -1,4 +1,4 @@
-﻿@model IT_Daily_Check.Models.DailyCheck
+﻿@model IT_Daily_Check.Models.ViewModels.DailyCheckViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -14,7 +14,11 @@
             @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" readonly class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Date_Created)
@@ -26,13 +30,134 @@
             @Html.DisplayNameFor(model => model.Location)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Location)
+            <div class="form-group">
+                <label asp-for="Location" class="control-label"></label>
+                <input asp-for="Location" readonly class="form-control" />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Created_By)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Created_By)
+            <div class="form-group">
+                <label asp-for="Created_By" class="control-label"></label>
+                <input asp-for="Created_By" readonly class="form-control" />
+                <span asp-validation-for="Created_By" class="text-danger"></span>
+            </div>
+        </dd>
+        <br />
+        <dt class="col-sm-2">
+            
+        </dt>
+        <dd class=" =col-sm-10">
+            <div id="internetChecksContainer">
+                @for (var i = 0; i < Model.InternetServiceSpeedcheckViewModels.Count; i++)
+                {
+                    <div class="formgroup-row" style="display:flex">
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" readonly class="control-label"></label>
+                            <select asp-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" readonly class="form-control" style="width:100px">
+                                @foreach (var isp in ViewBag.ISPs)
+                                {
+                                    <option value="@isp.Name">@isp.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" readonly class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" readonly class="control-label"></label>
+                            <input asp-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" readonly class="form-control" />
+                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" readonly class="text-danger"></span>
+                        </div>
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" readonly class="control-label"></label>
+                            <input asp-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" readonly class="form-control" />
+                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" readonly class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </dd>
+        <dt class="col-sm-2">
+
+        </dt>
+        <br />
+        <dd class=" =col-sm-10">
+            <div id="deviceChecksContainer">
+                @for (var i = 0; i < Model.DeviceServicecheckViewModels.Count; i++)
+                {
+                    <div class="formgroup-row" style="display:flex">
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="DeviceServicecheckViewModels[i].DeviceName" readonly class="control-label"></label>
+                            <select asp-for="DeviceServicecheckViewModels[i].DeviceName" readonly class="form-control">
+                                @foreach (var deviceService in ViewBag.DeviceServices)
+                                {
+                                    <option value="@deviceService.Name">@deviceService.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DeviceServicecheckViewModels[i].DeviceName" readonly class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="DeviceServicecheckViewModels[i].Status" readonly class="control-label"></label>
+                            <select asp-for="DeviceServicecheckViewModels[i].Status" readonly class="form-control">
+                                @foreach (var status in ViewBag.Statuses)
+                                {
+                                    <option value="@status.Name">@status.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="DeviceServicecheckViewModels[i].Status" readonly class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </dd>
+        <dt class="col-sm-2">
+
+        </dt>
+        <br />
+        <dd class=" =col-sm-10">
+            <div id="cctvChecksContainer">
+                @for (var i = 0; i < Model.CCTVcheckViewModels.Count; i++)
+                {
+                    <div class="formgroup-row" style="display:flex">
+                        <div class="form-group" style="margin-right:10px">
+                            <table><label asp-for="CCTVcheckViewModels[i].Description" readonly class="control-label"></label></table>
+                            <select asp-for="CCTVcheckViewModels[i].Description" readonly class="form-control" style="width:400px">
+                                @foreach (var cctv in ViewBag.CCTVs)
+                                {
+                                    <option value="@cctv.Description">@cctv.Description</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CCTVcheckViewModels[i].Description" class="text-danger"></span>
+                        </div>
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="CCTVcheckViewModels[i].Location" readonly class="control-label"></label>
+                            <input asp-for="CCTVcheckViewModels[i].Location" readonly class="form-control" style="width:300px" />
+                            <span asp-validation-for="CCTVcheckViewModels[i].Location" readonly class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="CCTVcheckViewModels[i].Results" readonly class="control-label"></label>
+                            <input asp-for="CCTVcheckViewModels[i].Results" readonly class="form-control" style="width:300px" />
+                            <span asp-validation-for="CCTVcheckViewModels[i].Results" readonly class="text-danger"></span>
+                        </div>
+                        <div class="form-group" style="margin-right:10px">
+                            <label asp-for="CCTVcheckViewModels[i].Reasons" readonly class="control-label"></label>
+                            <input asp-for="CCTVcheckViewModels[i].Reasons" readonly class="form-control" style="width:300px" />
+                            <span asp-validation-for="CCTVcheckViewModels[i].Reasons" readonly class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="formgroup-row" style="margin-right:10px">
+                        <label asp-for="CCTVcheckViewModels[i].Comments" readonly class="control-label"></label>
+                        <input asp-for="CCTVcheckViewModels[i].Comments" readonly class="form-control" style="width:1020px" />
+                        <span asp-validation-for="CCTVcheckViewModels[i].Comments" readonly class="text-danger"></span>
+                    </div>
+                }
+            </div>
         </dd>
     </dl>
 </div>

@@ -47,19 +47,70 @@ namespace IT_Daily_Check.Controllers
         // GET: DailyChecks/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.DailyChecks == null)
+
+            ViewBag.ISPs = _context.internetServiceProviders.ToList();
+            ViewBag.DeviceServices = _context.DeviceServices.ToList();
+            ViewBag.CCTVs = _context.CCTVs.ToList();
+            ViewBag.statuses = _context.Results.ToList();
+            ViewBag.Locations = _context.Locations.ToList();
+
+            // Retrieve the DailyCheck and its associated DeviceChecks from the database
+            var dailyCheck = await _context.DailyChecks.Include(dc => dc.DeviceServicechecks)
+                                                        .Include(c => c.CCTVchecks)
+                                                        .Include(i => i.InternetServiceSpeedchecks)
+                                                        .FirstOrDefaultAsync(dc => dc.Id == id);
+            
+            var cctvs = dailyCheck.CCTVchecks.Select(x => x.Description).ToList();
+            foreach (var cctv in dailyCheck.CCTVchecks)
             {
-                return NotFound();
+                var cctvLocation = await _context.CCTVs.Where(x => x.Description == cctv.Description).FirstOrDefaultAsync();
+
             }
 
-            var dailyCheck = await _context.DailyChecks
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (dailyCheck == null)
             {
                 return NotFound();
             }
 
-            return View(dailyCheck);
+            // Map the DailyCheck and DeviceChecks to the view model
+            var viewModel = new DailyCheckViewModel
+            {
+                Id = dailyCheck.Id,
+                Name = dailyCheck.Name,
+                Location = dailyCheck.Location,
+                Created_By = dailyCheck.Created_By,
+                Date_Created = dailyCheck.Date_Created,
+                DeviceServicecheckViewModels = dailyCheck.DeviceServicechecks.Select(deviceCheck => new DeviceServicecheckViewModel
+                {
+                    id = deviceCheck.Id,
+                    DeviceName = deviceCheck.DeviceName,
+                    Status = deviceCheck.Status
+                }).ToList(),
+                InternetServiceSpeedcheckViewModels = dailyCheck.InternetServiceSpeedchecks.Select(internetService => new InternetServiceSpeedcheckViewModel
+                {
+                    Id = internetService.Id,
+                    ISP_NAME = internetService.ISP_NAME,
+                    DownloadSpeed = internetService.DownloadSpeed,
+                    UploadSpeed = internetService.UploadSpeed
+                }).ToList(),
+                CCTVcheckViewModels = dailyCheck.CCTVchecks.Select(cctvCheck => new CCTVcheckViewModel
+                {                    
+                    Id = cctvCheck.Id,
+                    Description = cctvCheck.Description,
+                    Reasons = cctvCheck.Reasons,
+                    Results = cctvCheck.Results,
+                    Comments = cctvCheck.Comments,
+                    Location =  GetCctvLocation(cctvCheck.Description),                    
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        private string GetCctvLocation(string description)
+        {
+            var cctv =  _context.CCTVs.Where(x => x.Description == description).FirstOrDefault();
+            return cctv.Location;
         }
 
         // GET: DailyChecks/Create
@@ -147,7 +198,7 @@ namespace IT_Daily_Check.Controllers
             email.Sender = MailboxAddress.Parse(user.Email);
             email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : "OFFDOCK AND BMS DAILY CHECK";           
-            email.Body = new BodyBuilder { HtmlBody = string.Format("<P>Good Morning All</P> <br /><h3 style='color:black;'>Click on the link below to view details of the daily check <br />{0}</h3>", url) }.ToMessageBody();
+            email.Body = new BodyBuilder { HtmlBody = string.Format("<P>Good Morning All</P> <hr /> <h3 style='color:black;'>Click on the link below to view details of the daily check <br />{0}</h3>", url) }.ToMessageBody();
             using var smtp = new SmtpClient();
             smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
             smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
