@@ -63,7 +63,7 @@ namespace IT_Daily_Check.Controllers
 
            
 
-            return RedirectToAction(nameof(DailyChecksController.Index), "DailyChecks");
+            return RedirectToAction(nameof(DailyChecksController.GetCurrentDayCheck), "DailyChecks");
         }
        
         [HttpGet]
@@ -105,7 +105,7 @@ namespace IT_Daily_Check.Controllers
             if (Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             else
-                return RedirectToAction(nameof(DailyChecksController.Index), "DailyChecks");
+                return RedirectToAction(nameof(DailyChecksController.GetCurrentDayCheck), "DailyChecks");
 
         }
         [HttpPost]
@@ -114,7 +114,7 @@ namespace IT_Daily_Check.Controllers
         {
             await _signInManager.SignOutAsync();
 
-            return RedirectToAction(nameof(DailyChecksController.Create), "DailyChecks");
+            return RedirectToAction("Login");
         }
 
         [HttpGet]

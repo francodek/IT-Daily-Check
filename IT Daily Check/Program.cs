@@ -49,7 +49,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=DailyChecks}/{action=Index}/{id?}");
+    pattern: "{controller=DailyChecks}/{action=GetCurrentDayCheck}/{id?}");
 
 app.MapRazorPages();
 

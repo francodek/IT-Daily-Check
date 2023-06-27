@@ -10,158 +10,237 @@
     <h4>DailyCheck</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+        <dt class="col-sm-2">
+            <strong>Name:</strong>
         </dt>
-        <dd class = "col-sm-10">
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" readonly class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Date_Created)
+            <strong> Date:</strong>
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Date_Created)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Location)
+            <strong> Location:</strong>
         </dt>
         <dd class = "col-sm-10">
-            <div class="form-group">
-                <label asp-for="Location" class="control-label"></label>
-                <input asp-for="Location" readonly class="form-control" />
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
+            @Html.DisplayFor(model => model.Location)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Created_By)
+            Created By:
         </dt>
         <dd class = "col-sm-10">
-            <div class="form-group">
-                <label asp-for="Created_By" class="control-label"></label>
-                <input asp-for="Created_By" readonly class="form-control" />
-                <span asp-validation-for="Created_By" class="text-danger"></span>
-            </div>
+            @Html.DisplayFor(model => model.Created_By)
         </dd>
-        <br />
+        @if (!string.IsNullOrEmpty(Model.ImageOneName))
+        {
+            <div>
+                <div><img src="~/media/images/@Model.ImageOneName" /></div>
+            </div>
+        }
+        else
+        {
+            <div>
+                <div></div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ImageTwoName))
+        {
+            <div>
+                <div><img src="~/media/images/@Model.ImageTwoName" /></div>
+            </div>
+        }
+        else
+        {
+            <div>
+                <div></div>
+            </div>
+        }
+</div>
         <dt class="col-sm-2">
-            
+            <strong>Internet Speed Check</strong>
         </dt>
         <dd class=" =col-sm-10">
-            <div id="internetChecksContainer">
-                @for (var i = 0; i < Model.InternetServiceSpeedcheckViewModels.Count; i++)
-                {
-                    <div class="formgroup-row" style="display:flex">
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" readonly class="control-label"></label>
-                            <select asp-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" readonly class="form-control" style="width:100px">
-                                @foreach (var isp in ViewBag.ISPs)
-                                {
-                                    <option value="@isp.Name">@isp.Name</option>
-                                }
-                            </select>
-                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].ISP_NAME" readonly class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" readonly class="control-label"></label>
-                            <input asp-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" readonly class="form-control" />
-                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].DownloadSpeed" readonly class="text-danger"></span>
-                        </div>
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" readonly class="control-label"></label>
-                            <input asp-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" readonly class="form-control" />
-                            <span asp-validation-for="InternetServiceSpeedcheckViewModels[i].UploadSpeed" readonly class="text-danger"></span>
-                        </div>
-                    </div>
+            <style>
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
                 }
-            </div>
+
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                }
+            </style>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ISP NAME</th>
+                        <th>Download Speed</th>
+                        <th> Upload Speed</th>
+
+                    </tr>
+                    @foreach (var ISPs in Model.InternetServiceSpeedcheckViewModels)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.ISP_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.DownloadSpeed)Mbps
+                            </td>
+                            <td>
+                                @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.UploadSpeed)Mbps
+                            </td>
+                        </tr>
+                    }
+                </thead>
+            </table>
 
         </dd>
         <dt class="col-sm-2">
-
+            <strong>Devices/Services Check</strong>
         </dt>
-        <br />
+        
         <dd class=" =col-sm-10">
-            <div id="deviceChecksContainer">
-                @for (var i = 0; i < Model.DeviceServicecheckViewModels.Count; i++)
-                {
-                    <div class="formgroup-row" style="display:flex">
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="DeviceServicecheckViewModels[i].DeviceName" readonly class="control-label"></label>
-                            <select asp-for="DeviceServicecheckViewModels[i].DeviceName" readonly class="form-control">
-                                @foreach (var deviceService in ViewBag.DeviceServices)
-                                {
-                                    <option value="@deviceService.Name">@deviceService.Name</option>
-                                }
-                            </select>
-                            <span asp-validation-for="DeviceServicecheckViewModels[i].DeviceName" readonly class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="DeviceServicecheckViewModels[i].Status" readonly class="control-label"></label>
-                            <select asp-for="DeviceServicecheckViewModels[i].Status" readonly class="form-control">
-                                @foreach (var status in ViewBag.Statuses)
-                                {
-                                    <option value="@status.Name">@status.Name</option>
-                                }
-                            </select>
-                            <span asp-validation-for="DeviceServicecheckViewModels[i].Status" readonly class="text-danger"></span>
-                        </div>
-                    </div>
+            <style>
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
                 }
+
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                }
+            </style>
+            <div id="deviceChecksContainer" style="display:flex">
+                @{
+                    var deviceChecksGroup1 = Model.DeviceServicecheckViewModels.Take(10);
+                    var deviceChecksGroup2 = Model.DeviceServicecheckViewModels.Skip(10);
+                }
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Device Name</th>
+                            <th>Status</th>
+
+                        </tr>
+                        @foreach (var deviceCheck in deviceChecksGroup1)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.DeviceName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.Status)
+                                </td>
+                            </tr>
+                        }
+                    </thead>
+                </table>
+                @if(!deviceChecksGroup2.Any())
+                {
+                    <div></div>
+                }
+                else
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Device Name</th>
+                                <th>Status</th>
+
+                            </tr>
+                            @foreach (var deviceCheck in deviceChecksGroup2)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.DeviceName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.Status)
+                                    </td>
+                                </tr>
+                            }
+                        </thead>
+                    </table>
+                }
+                  
             </div>
+           
         </dd>
         <dt class="col-sm-2">
-
+            <strong>CCTV Check</strong>
         </dt>
-        <br />
         <dd class=" =col-sm-10">
-            <div id="cctvChecksContainer">
-                @for (var i = 0; i < Model.CCTVcheckViewModels.Count; i++)
-                {
-                    <div class="formgroup-row" style="display:flex">
-                        <div class="form-group" style="margin-right:10px">
-                            <table><label asp-for="CCTVcheckViewModels[i].Description" readonly class="control-label"></label></table>
-                            <select asp-for="CCTVcheckViewModels[i].Description" readonly class="form-control" style="width:400px">
-                                @foreach (var cctv in ViewBag.CCTVs)
-                                {
-                                    <option value="@cctv.Description">@cctv.Description</option>
-                                }
-                            </select>
-                            <span asp-validation-for="CCTVcheckViewModels[i].Description" class="text-danger"></span>
-                        </div>
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="CCTVcheckViewModels[i].Location" readonly class="control-label"></label>
-                            <input asp-for="CCTVcheckViewModels[i].Location" readonly class="form-control" style="width:300px" />
-                            <span asp-validation-for="CCTVcheckViewModels[i].Location" readonly class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="CCTVcheckViewModels[i].Results" readonly class="control-label"></label>
-                            <input asp-for="CCTVcheckViewModels[i].Results" readonly class="form-control" style="width:300px" />
-                            <span asp-validation-for="CCTVcheckViewModels[i].Results" readonly class="text-danger"></span>
-                        </div>
-                        <div class="form-group" style="margin-right:10px">
-                            <label asp-for="CCTVcheckViewModels[i].Reasons" readonly class="control-label"></label>
-                            <input asp-for="CCTVcheckViewModels[i].Reasons" readonly class="form-control" style="width:300px" />
-                            <span asp-validation-for="CCTVcheckViewModels[i].Reasons" readonly class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="formgroup-row" style="margin-right:10px">
-                        <label asp-for="CCTVcheckViewModels[i].Comments" readonly class="control-label"></label>
-                        <input asp-for="CCTVcheckViewModels[i].Comments" readonly class="form-control" style="width:1020px" />
-                        <span asp-validation-for="CCTVcheckViewModels[i].Comments" readonly class="text-danger"></span>
-                    </div>
+            <style>
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
                 }
-            </div>
+
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                }
+            </style>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Location</th>
+                        <th>Results</th>
+                        <th>Reasons</th>
+                        <th>Comments</th>
+                    </tr>
+                    @foreach (var CCTVs in Model.CCTVcheckViewModels)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Description)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Location)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Results)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Reasons)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Comments)
+                            </td>
+                        </tr>
+                    }
+                </thead>
+            </table>
         </dd>
     </dl>
-</div>
+   
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+
+
+
+
+

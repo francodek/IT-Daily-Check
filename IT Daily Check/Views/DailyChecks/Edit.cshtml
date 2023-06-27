@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -26,6 +26,40 @@
                 <label asp-for="Created_By" class="control-label"></label>
                 <input asp-for="Created_By" readonly class="form-control" />
                 <span asp-validation-for="Created_By" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ImageOneName" class="control-label">Current Image</label>
+                        <img src="~/media/images/@Model.ImageOneName" width="200" alt="" />
+                        <input asp-for="ImageOneName" readonly class="form-control" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ImageOneName" class="control-label">Image 1</label>
+                        <input asp-for="ImageUploadOne" type="file" class="form-control" />
+                        <img src="" id="imgpreview" class="pt-2" alt="" />
+                        <span asp-validation-for="ImageUploadOne" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ImageTwoName" class="control-label">Current Image</label>
+                        <img src="~/media/images/@Model.ImageTwoName" width="200" alt="" />
+                        <input asp-for="ImageTwoName" readonly class="form-control" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ImageOneName" class="control-label">Image 2</label>
+                        <input asp-for="ImageUploadTwo" type="file" class="form-control" />
+                        <img src="" id="imgpreview" class="pt-2" alt="" />
+                        <span asp-validation-for="ImageUploadTwo" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <br />
             <h3>Internet Service</h3>
@@ -164,7 +198,18 @@
 </div>
 
 @section Scripts {
+    <script>
 
+        $("#ImageUploadOne").change(function () {
+            readURL(this);
+        });
+    </script>
+    <script>
+
+        $("#ImageUploadTwo").change(function () {
+            readURL(this);
+        });
+    </script>
 
     <script>
         var internetServices = @Html.Raw(Json.Serialize(ViewBag.ISPs));

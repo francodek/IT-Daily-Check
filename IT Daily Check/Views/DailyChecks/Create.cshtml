@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
             
@@ -25,7 +25,22 @@
                     }
                 </select>
                 <span asp-validation-for="Location" class="text-danger"></span>
-            </div>            
+            </div>  
+            
+            <div class="form-group">
+                <label asp-for="ImageOneName" class="control-label">Image 1</label>
+                <input asp-for="ImageUploadOne" class="form-control" />
+                <img src="" id="imgpreview" class="pt-2" alt="" />
+                <span asp-validation-for="ImageUploadOne" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageTwoName" class="control-label">Image 2</label>
+                <input asp-for="ImageUploadTwo" class="form-control" />
+                <img src="" id="imgpreview" class="pt-2" alt="" />
+                <span asp-validation-for="ImageUploadTwo" class="text-danger"></span>
+            </div>
+            <br />
+            <br />
 
             <h3>Internet Speed Check</h3>
 
@@ -50,13 +65,13 @@
 
             <div id="deviceChecks">
                 <div class="deviceChecks" style="display:flex">
-                    <select name="DeviceServicecheckViewModels[0].DeviceName" style="margin-right:10px">
+                    <select name="DeviceServicecheckViewModels[0].DeviceName" class="form-control" style="margin-right:10px">
                         @foreach (var deviceService in ViewBag.DeviceServices)
                         {
                             <option value="@deviceService.Name">@deviceService.Name</option>
                         }
                     </select>
-                    <select name="DeviceServicecheckViewModels[0].Status" style="margin-right:10px">
+                    <select name="DeviceServicecheckViewModels[0].Status" class="form-control" style="margin-right:10px">
                         @foreach (var deviceService in ViewBag.Statuses)
                         {
                             <option value="@deviceService.Name">@deviceService.Name</option>
@@ -107,6 +122,18 @@
 </div>
 
 @section Scripts {
+    <script>
+
+        $("#ImageUploadOne").change(function () {
+            readURL(this);
+        });
+    </script>
+    <script>
+
+        $("#ImageUploadTwo").change(function () {
+            readURL(this);
+        });
+    </script>
 
     @*Script for adding and removing internet speed checks*@
     <script>

@@ -1,0 +1,17 @@
+﻿@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success notification">
+        @TempData["Success"]
+        <a href="#" class="close" data-dismiss="alert" id="Alert" aria-label="close">&times;</a>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger notification" id="Alert">
+        @TempData["Error"]
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    </div>
+}
+
+

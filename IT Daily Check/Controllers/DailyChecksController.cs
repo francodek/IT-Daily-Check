@@ -19,6 +19,7 @@ using IT_Daily_Check.Settings;
 using MailKit.Security;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Hosting;
 
 namespace IT_Daily_Check.Controllers
 {
@@ -28,20 +29,48 @@ namespace IT_Daily_Check.Controllers
         private readonly IHttpContextAccessor _httpcontextAccessor;
         private readonly UserManager<User> _userManager;
         private readonly MailSettings _mailSettings;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
 
-        public DailyChecksController(ApplicationDbContext context, IHttpContextAccessor httpcontextAccessor, UserManager<User> userManager, IOptions<MailSettings> mailSettings)
+        public DailyChecksController(ApplicationDbContext context, IHttpContextAccessor httpcontextAccessor, UserManager<User> userManager, IOptions<MailSettings> mailSettings, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _httpcontextAccessor = httpcontextAccessor;
             _userManager = userManager;
             _mailSettings = mailSettings.Value;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: DailyChecks
         public async Task<IActionResult> Index()
         {
               return View(await _context.DailyChecks.ToListAsync());
+        }
+
+        public IActionResult NoCheckView()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> GetCurrentDayCheck()
+        {
+            var dailyCheck = await _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date).ToListAsync();
+            if (!dailyCheck.Any())
+            {
+                return RedirectToAction("NoCheckView");
+            }
+            return View(dailyCheck);
+        }
+
+        public async Task<IActionResult> GetDailyCheckForSelectedDate(DateTime date)
+        {
+            var dailyCheck = await _context.DailyChecks.Where(x => x.Date_Created.Date == date.Date).ToListAsync();
+            if (!dailyCheck.Any())
+            {
+                TempData["Error"] = "No Check Created For Searched Date";
+                return RedirectToAction("GetCurrentDayCheck");
+            }
+            return View(dailyCheck);
         }
 
         // GET: DailyChecks/Details/5
@@ -80,6 +109,8 @@ namespace IT_Daily_Check.Controllers
                 Location = dailyCheck.Location,
                 Created_By = dailyCheck.Created_By,
                 Date_Created = dailyCheck.Date_Created,
+                ImageOneName = dailyCheck.ImageOneName,
+                ImageTwoName = dailyCheck.ImageTwoName,
                 DeviceServicecheckViewModels = dailyCheck.DeviceServicechecks.Select(deviceCheck => new DeviceServicecheckViewModel
                 {
                     id = deviceCheck.Id,
@@ -133,6 +164,33 @@ namespace IT_Daily_Check.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DailyCheckViewModel model)
         {
+            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location).FirstOrDefault();
+            if (dailycheck != null)
+            {
+                TempData["Error"] = $"A Check has already been created for {model.Location}";
+                return RedirectToAction("Index");
+            }
+
+            // Image Creation Section
+            string imageOneName = "";
+            if (model.ImageUploadOne != null)
+            {
+                string folder = "media/images/";
+                imageOneName = Guid.NewGuid().ToString() + "_" + model.ImageUploadOne.FileName;
+                string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder, imageOneName);
+
+                await model.ImageUploadOne.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+            }
+
+            string imageTwoName = "";
+            if (model.ImageUploadTwo != null)
+            {
+                string folder = "media/images/";
+                imageTwoName = Guid.NewGuid().ToString() + "_" + model.ImageUploadTwo.FileName;
+                string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder, imageTwoName);
+
+                await model.ImageUploadTwo.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+            }
             var userId = _httpcontextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
             var firstName = user.FirstName;
@@ -143,7 +201,9 @@ namespace IT_Daily_Check.Controllers
                 Name = $"Daily Check - {model.Location} - {DateTime.Now}",
                 Location = model.Location,
                 Date_Created = DateTime.Now,
-                Created_By = $"{firstName} {lastName}"
+                Created_By = $"{firstName} {lastName}",
+                ImageOneName = imageOneName,
+                ImageTwoName = imageTwoName
             };
 
             // Create Internet Service Checks 
@@ -193,7 +253,7 @@ namespace IT_Daily_Check.Controllers
             _context.DailyChecks.Add(dailyCheck);
             _context.SaveChanges();
 
-            string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + Url.Action("Edit", "DailyChecks") + "/" + dailyCheck.Id;
+            string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + Url.Action("Details", "DailyChecks") + "/" + dailyCheck.Id;
             var email = new MimeMessage();
             email.Sender = MailboxAddress.Parse(user.Email);
             email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
@@ -207,8 +267,8 @@ namespace IT_Daily_Check.Controllers
 
             return RedirectToAction("Index");
         }
-        
 
+        [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
 
@@ -237,6 +297,10 @@ namespace IT_Daily_Check.Controllers
                 Location = dailyCheck.Location,
                 Created_By = dailyCheck.Created_By,
                 Date_Created = dailyCheck.Date_Created,
+                ImageOneName = dailyCheck.ImageOneName,
+                ImageTwoName = dailyCheck.ImageTwoName,
+                ImageUploadOne = dailyCheck.ImageUploadOne,
+                ImageUploadTwo = dailyCheck.ImageUploadTwo,
                 DeviceServicecheckViewModels = dailyCheck.DeviceServicechecks.Select(deviceCheck => new DeviceServicecheckViewModel
                 {
                     id = deviceCheck.Id,
@@ -263,40 +327,8 @@ namespace IT_Daily_Check.Controllers
             return View(viewModel);
         }
 
-        // POST: DailyChecks/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Date_Created,Location,Created_By")] DailyCheck dailyCheck)
-        //{
-        //    if (id != dailyCheck.Id)
-        //    {
-        //        return NotFound();
-        //    }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(dailyCheck);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!DailyCheckExists(dailyCheck.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(dailyCheck);
-        //}
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, DailyCheckViewModel viewModel)
@@ -314,6 +346,49 @@ namespace IT_Daily_Check.Controllers
                                                             .Include(c => c.CCTVchecks)
                                                             .FirstOrDefaultAsync(dc => dc.Id == id);
 
+                if (viewModel.ImageUploadOne != null)
+                {
+                    string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                    if (!string.IsNullOrEmpty(viewModel.ImageOneName))
+                    {
+                        string oldImagePath = Path.Combine(imageOneuploadsDir, viewModel.ImageOneName);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                    string imageOneName = Guid.NewGuid().ToString() + "_" + viewModel.ImageUploadOne.FileName;
+                    string filePath1 = Path.Combine(imageOneuploadsDir, imageOneName);
+                    FileStream fs1 = new FileStream(filePath1, FileMode.Create);
+                    await viewModel.ImageUploadOne.CopyToAsync(fs1);
+                    fs1.Close();
+                    dailyCheck.ImageOneName = imageOneName;
+                }
+
+
+
+                if (viewModel.ImageUploadTwo != null)
+                {
+                    string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                    if (!string.IsNullOrEmpty(viewModel.ImageTwoName))
+                    {
+                        string oldImagePath = Path.Combine(imageTwouploadsDir, viewModel.ImageTwoName);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                    string imageTwoName = Guid.NewGuid().ToString() + "_" + viewModel.ImageUploadTwo.FileName;
+                    string filePath2 = Path.Combine(imageTwouploadsDir, imageTwoName);
+                    FileStream fs2 = new FileStream(filePath2, FileMode.Create);
+                    await viewModel.ImageUploadTwo.CopyToAsync(fs2);
+                    fs2.Close();
+                    dailyCheck.ImageTwoName = imageTwoName;
+                }
+
+
+
+
                 if (dailyCheck == null)
                 {
                     return NotFound();
@@ -321,6 +396,8 @@ namespace IT_Daily_Check.Controllers
 
                 // Update the properties of the DailyCheck
                 dailyCheck.Location = viewModel.Location;
+                dailyCheck.ImageUploadOne = dailyCheck.ImageUploadOne;
+                dailyCheck.ImageUploadTwo = dailyCheck.ImageUploadTwo;               
 
                 List<InternetServiceSpeedcheckViewModel> internetServiceSpeedcheckViewModel = viewModel.InternetServiceSpeedcheckViewModels;
                 if (internetServiceSpeedcheckViewModel != null)
@@ -451,6 +528,7 @@ namespace IT_Daily_Check.Controllers
         }
 
         // POST: DailyChecks/Delete/5
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -462,6 +540,32 @@ namespace IT_Daily_Check.Controllers
             var dailyCheck = await _context.DailyChecks.FindAsync(id);
             if (dailyCheck != null)
             {
+                if (dailyCheck.ImageOneName != null)
+                {
+                    string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                    if (!string.IsNullOrEmpty(dailyCheck.ImageOneName))
+                    {
+                        string oldImagePath = Path.Combine(imageOneuploadsDir, dailyCheck.ImageOneName);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                }
+
+
+                if (dailyCheck.ImageTwoName != null)
+                {
+                    string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                    if (!string.IsNullOrEmpty(dailyCheck.ImageTwoName))
+                    {
+                        string oldImagePath = Path.Combine(imageTwouploadsDir, dailyCheck.ImageTwoName);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                }
                 _context.DailyChecks.Remove(dailyCheck);
             }
             

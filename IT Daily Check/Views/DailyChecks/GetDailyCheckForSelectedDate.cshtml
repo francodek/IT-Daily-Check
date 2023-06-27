@@ -1,14 +1,18 @@
 ﻿@model IEnumerable<IT_Daily_Check.Models.DailyCheck>
 
 @{
-    ViewData["Title"] = "Daily Checks";
+    ViewData["Title"] = "Checks";
 }
 
-<h1>Daily Check List</h1>
+<h1>Check List</h1>
 
 <div style="display:flex;">
     <p>
         <a asp-action="Create" style="margin-right:30px">Create New Check</a>
+    </p>
+
+    <p>
+        <a asp-action="Index" style="margin-right:30px">View All Daily Checks</a>
     </p>
 
     <p>
@@ -18,12 +22,11 @@
     <form class="form-inline" asp-controller="DailyChecks" asp-action="GetDailyCheckForSelectedDate">
         <div style="display:flex">
             <label class="control-label" style="margin-right:10px">Date</label>
-            <input type="date" value="" class="form-control" name="date" id="date" style="margin-right:10px" />            
+            <input type="date" value="" class="form-control" name="date" id="date" style="margin-right:10px" />
             <input type="submit" value="Get" asp-action="GetDailyCheckForSelectedDate" asp-controller="DailyChecks" class="btn btn-primary" style="margin-right:10px" />
-        </div>       
+        </div>
     </form>
 </div>
-
 
 <table class="table">
     <thead>
@@ -44,26 +47,27 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date_Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Location)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created_By)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date_Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created_By)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
