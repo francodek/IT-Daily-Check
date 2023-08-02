@@ -53,15 +53,16 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2023 - GMT  - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; <span id="current-year"></span> - GMT
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script type="text/javascript">
+        document.getElementById("current-year").innerHTML = new Date().getFullYear();
         $(function () {
-            $('#Alert').hide(10000);
+            $('#Alert').hide(3000);
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

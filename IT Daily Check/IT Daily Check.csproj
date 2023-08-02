@@ -5,7 +5,17 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>IT_Daily_Check</RootNamespace>
+	<PreserveCompilationReferences>true</PreserveCompilationReferences>
+	<PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\DailyChecks\EmailTemplate.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Views\DailyChecks\EmailTemplate.cshtml" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
@@ -20,6 +30,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.14" />
     <PackageReference Include="MimeKit" Version="2.9.1" />
+    <PackageReference Include="RazorLight" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

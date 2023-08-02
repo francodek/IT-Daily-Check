@@ -8,11 +8,11 @@
 
 <div style="display:flex;">
     <p>
-        <a asp-action="Create" style="margin-right:30px">Create New Check</a>
+        <a asp-action="Create" style="margin-right:30px" class="fas fa-info-circle btn btn-success btn-sm active">Create New Check</a>
     </p>
 
     <p>
-        <a asp-action="Index" style="margin-right:30px">View All Daily Checks</a>
+        <a asp-action="Index" style="margin-right:30px" class="fas fa-info-circle btn btn-info btn-sm active">View All Daily Checks</a>
     </p>
 
     <form class="form-inline" asp-controller="DailyChecks" asp-action="GetDailyCheckForSelectedDate">
@@ -59,9 +59,9 @@
                     @Html.DisplayFor(modelItem => item.Created_By)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="fas fa-info-circle btn btn-primary btn-sm active">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="fas fa-info-circle btn btn-info btn-sm active">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="fas fa-info-circle btn btn-danger btn-sm active">Delete</a>
                 </td>
             </tr>
         }

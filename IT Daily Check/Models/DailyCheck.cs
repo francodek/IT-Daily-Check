@@ -14,6 +14,7 @@ namespace IT_Daily_Check.Models
         public string Created_By { get; set; }
         public string ImageOneName { get; set; }
         public string ImageTwoName { get; set; }
+        public string Comments { get; set; }
 
         [NotMapped]
         [FileExtension]
