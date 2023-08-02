@@ -403,9 +403,8 @@ namespace IT_Daily_Check.Controllers
                                                             .FirstOrDefaultAsync(dc => dc.Id == id);
 
                 if (viewModel.ImageUploadOne != null)
-                {
-                    string imageOneuploadsDir = "C:/Users/taofeeal/OneDrive - GMT NIGERIA LIMITED/DailyCheckImages";
-                    //string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                {                    
+                    string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(viewModel.ImageOneName))
                     {
                         string oldImagePath = Path.Combine(imageOneuploadsDir, viewModel.ImageOneName);
@@ -425,9 +424,8 @@ namespace IT_Daily_Check.Controllers
 
 
                 if (viewModel.ImageUploadTwo != null)
-                {
-                    string imageTwouploadsDir = "C:/Users/taofeeal/OneDrive - GMT NIGERIA LIMITED/DailyCheckImages";
-                    //string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                {                    
+                    string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(viewModel.ImageTwoName))
                     {
                         string oldImagePath = Path.Combine(imageTwouploadsDir, viewModel.ImageTwoName);
@@ -599,10 +597,8 @@ namespace IT_Daily_Check.Controllers
             if (dailyCheck != null)
             {
                 if (dailyCheck.ImageOneName != null)
-                {
-                    string imageOneuploadsDir = "C:/Users/taofeeal/OneDrive - GMT NIGERIA LIMITED/DailyCheckImages";
-                    
-                    //string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                {                                        
+                    string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(dailyCheck.ImageOneName))
                     {
                         string oldImagePath = Path.Combine(imageOneuploadsDir, dailyCheck.ImageOneName);
@@ -615,9 +611,8 @@ namespace IT_Daily_Check.Controllers
 
 
                 if (dailyCheck.ImageTwoName != null)
-                {
-                    string imageTwouploadsDir = "C:/Users/taofeeal/OneDrive - GMT NIGERIA LIMITED/DailyCheckImages";
-                    //string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                {                    
+                    string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(dailyCheck.ImageTwoName))
                     {
                         string oldImagePath = Path.Combine(imageTwouploadsDir, dailyCheck.ImageTwoName);
