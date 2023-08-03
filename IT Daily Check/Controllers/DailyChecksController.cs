@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using RazorLight;
 using IT_Daily_Check.Views.DailyChecks;
 using AutoMapper.Internal;
+using System.Xml.Linq;
 
 namespace IT_Daily_Check.Controllers
 {
@@ -50,7 +51,9 @@ namespace IT_Daily_Check.Controllers
         // GET: DailyChecks
         public async Task<IActionResult> Index()
         {
-              return View(await _context.DailyChecks.ToListAsync());
+              return View(await _context.DailyChecks
+                  .OrderByDescending(x => x.Date_Created)
+                  .ToListAsync());
         }
 
         public IActionResult NoCheckView()
@@ -114,6 +117,7 @@ namespace IT_Daily_Check.Controllers
                 Name = dailyCheck.Name,
                 Location = dailyCheck.Location,
                 Created_By = dailyCheck.Created_By,
+                Comments = dailyCheck.Comments,
                 Date_Created = dailyCheck.Date_Created,
                 ImageOneName = dailyCheck.ImageOneName,
                 ImageTwoName = dailyCheck.ImageTwoName,
@@ -170,7 +174,7 @@ namespace IT_Daily_Check.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DailyCheckViewModel model)
         {
-            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location).FirstOrDefault();
+            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location && x.Comments == model.Comments).FirstOrDefault();
             if (dailycheck != null)
             {
                 TempData["Error"] = $"A Check has already been created for {model.Location}";
@@ -211,7 +215,8 @@ namespace IT_Daily_Check.Controllers
                 Date_Created = DateTime.Now,
                 Created_By = $"{firstName} {lastName}",
                 ImageOneName = imageOneName,
-                ImageTwoName = imageTwoName
+                ImageTwoName = imageTwoName,
+                Comments = model.Comments
             };
 
             // Create Internet Service Checks 
@@ -264,12 +269,14 @@ namespace IT_Daily_Check.Controllers
             _context.SaveChanges();
 
             string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + Url.Action("Details", "DailyChecks") + "/" + dailyCheck.Id;            
-
             
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
             var email = new MimeMessage();
             email.Sender = MailboxAddress.Parse(user.Email);
-            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));            
+            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+           // email.To.Add(MailboxAddress.Parse("fisayoadegun@gmail.com"));
+            email.Cc.Add(MailboxAddress.Parse("francisopogah45@gmail.com"));
+            email.To.Add(MailboxAddress.Parse("oluwadare.aborisade@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun" 
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";            
             var bodyBuilder = new BodyBuilder();
@@ -310,13 +317,11 @@ namespace IT_Daily_Check.Controllers
 
         private async Task<string> RenderViewToStringAsync<TModel>(string viewName, TModel model)
         {
-            string assemblyFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            var metadataReference = Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(Path.Combine(assemblyFolder, "IT Daily check.dll"));
+            string assemblyFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);           
             var engine = new RazorLightEngineBuilder()
              .UseMemoryCachingProvider()
              .UseEmbeddedResourcesProject(typeof(EmailTemplateModel))
-             .EnableDebugMode(true)
-             .AddMetadataReferences(metadataReference)
+             .EnableDebugMode(true)             
              .Build();
             string viewHtml = await engine.CompileRenderAsync<object>(viewName, model);            
 
@@ -352,6 +357,7 @@ namespace IT_Daily_Check.Controllers
                 Name = dailyCheck.Name,
                 Location = dailyCheck.Location,
                 Created_By = dailyCheck.Created_By,
+                Comments = dailyCheck.Comments,
                 Date_Created = dailyCheck.Date_Created,
                 ImageOneName = dailyCheck.ImageOneName,
                 ImageTwoName = dailyCheck.ImageTwoName,
@@ -452,6 +458,7 @@ namespace IT_Daily_Check.Controllers
 
                 // Update the properties of the DailyCheck
                 dailyCheck.Location = viewModel.Location;
+                dailyCheck.Comments = viewModel.Comments;
                 dailyCheck.ImageUploadOne = dailyCheck.ImageUploadOne;
                 dailyCheck.ImageUploadTwo = dailyCheck.ImageUploadTwo;               
 
