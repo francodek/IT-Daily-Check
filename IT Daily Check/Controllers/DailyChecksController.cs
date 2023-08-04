@@ -55,7 +55,7 @@ namespace IT_Daily_Check.Controllers
             // GET: DailyChecks
         public async Task<IActionResult> Index(int pageNumber=1)
         {
-            return View(await PaginatedList<DailyCheck>.CreateAsync(_context.DailyChecks,pageNumber,2));
+            return View(await PaginatedList<DailyCheck>.CreateAsync(_context.DailyChecks,pageNumber,10));
         }
 
         public IActionResult NoCheckView()
@@ -279,7 +279,7 @@ namespace IT_Daily_Check.Controllers
             email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
             // email.To.Add(MailboxAddress.Parse("fisayoadegun@gmail.com"));
             email.Cc.Add(MailboxAddress.Parse("francisopogah45@gmail.com"));
-           // email.To.Add(MailboxAddress.Parse("oluwadare.aborisade@gmt-limited.com"));
+            email.To.Add(MailboxAddress.Parse("adenike.owoyemi@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun" 
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";            
             var bodyBuilder = new BodyBuilder();
