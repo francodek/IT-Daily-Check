@@ -1,4 +1,4 @@
-﻿@model IEnumerable<IT_Daily_Check.Models.DailyCheck>
+﻿@model PaginatedList<IT_Daily_Check.Models.DailyCheck>
 
 @{
     ViewData["Title"] = "Daily Checks";
@@ -29,16 +29,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Date_Created)
+                Date_Created
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Location)
+                Location
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Created_By)
+                Created_By
             </th>
             <th></th>
         </tr>
@@ -67,3 +67,61 @@
 }
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+
+
+<style>
+    .custom-prev-button {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .custom-next-button {
+        background-color: #28a745;
+        color: #fff;
+    }
+</style>
+
+<div class="pagination-container">
+    <a asp-action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn custom-prev-button @prevDisabled">
+        Previous
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn custom-next-button @nextDisabled">
+        Next
+    </a>
+</div>
+
+
+
+
+
+
+
+<!--<a href="/"> @{
+    //var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+   // var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   class="btn btn-default @nextDisabled">
+    Next
+</a> </a> -->

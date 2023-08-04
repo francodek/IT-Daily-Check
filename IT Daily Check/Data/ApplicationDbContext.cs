@@ -16,8 +16,8 @@ namespace IT_Daily_Check.Data
         public DbSet<CCTVcheck> CCTVchecks { get; set; }
         public DbSet<DeviceService> DeviceServices { get; set; }
         public DbSet<DeviceServicecheck> DeviceServicechecks { get; set; }
-        public DbSet<InternetServiceProvider> internetServiceProviders { get; set; }
-        public DbSet<InternetServiceSpeedcheck> internetServiceSpeedchecks { get; set; }
+        public DbSet<InternetServiceProvider> InternetServiceProviders { get; set; }
+        public DbSet<InternetServiceSpeedcheck> InternetServiceSpeedchecks { get; set; }
 
         public DbSet<Location> Locations { get; set; }
 

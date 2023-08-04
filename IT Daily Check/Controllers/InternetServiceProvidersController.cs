@@ -24,18 +24,18 @@ namespace IT_Daily_Check.Controllers
         // GET: InternetServiceProviders
         public async Task<IActionResult> Index()
         {
-              return View(await _context.internetServiceProviders.ToListAsync());
+              return View(await _context.InternetServiceProviders.ToListAsync());
         }
 
         // GET: InternetServiceProviders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.internetServiceProviders == null)
+            if (id == null || _context.InternetServiceProviders == null)
             {
                 return NotFound();
             }
 
-            var internetServiceProvider = await _context.internetServiceProviders
+            var internetServiceProvider = await _context.InternetServiceProviders
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (internetServiceProvider == null)
             {
@@ -70,12 +70,12 @@ namespace IT_Daily_Check.Controllers
         // GET: InternetServiceProviders/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.internetServiceProviders == null)
+            if (id == null || _context.InternetServiceProviders == null)
             {
                 return NotFound();
             }
 
-            var internetServiceProvider = await _context.internetServiceProviders.FindAsync(id);
+            var internetServiceProvider = await _context.InternetServiceProviders.FindAsync(id);
             if (internetServiceProvider == null)
             {
                 return NotFound();
@@ -121,12 +121,12 @@ namespace IT_Daily_Check.Controllers
         // GET: InternetServiceProviders/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.internetServiceProviders == null)
+            if (id == null || _context.InternetServiceProviders == null)
             {
                 return NotFound();
             }
 
-            var internetServiceProvider = await _context.internetServiceProviders
+            var internetServiceProvider = await _context.InternetServiceProviders
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (internetServiceProvider == null)
             {
@@ -141,14 +141,14 @@ namespace IT_Daily_Check.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.internetServiceProviders == null)
+            if (_context.InternetServiceProviders == null)
             {
                 return Problem("Entity set 'ApplicationDbContext.internetServiceProviders'  is null.");
             }
-            var internetServiceProvider = await _context.internetServiceProviders.FindAsync(id);
+            var internetServiceProvider = await _context.InternetServiceProviders.FindAsync(id);
             if (internetServiceProvider != null)
             {
-                _context.internetServiceProviders.Remove(internetServiceProvider);
+                _context.InternetServiceProviders.Remove(internetServiceProvider);
             }
             
             await _context.SaveChangesAsync();
@@ -157,7 +157,7 @@ namespace IT_Daily_Check.Controllers
 
         private bool InternetServiceProviderExists(int id)
         {
-          return _context.internetServiceProviders.Any(e => e.Id == id);
+          return _context.InternetServiceProviders.Any(e => e.Id == id);
         }
     }
 }

@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using RazorLight;
 using IT_Daily_Check.Views.DailyChecks;
 using AutoMapper.Internal;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace IT_Daily_Check.Controllers
 {
@@ -45,14 +46,16 @@ namespace IT_Daily_Check.Controllers
             _webHostEnvironment = webHostEnvironment;
             _razorViewEngine = razorViewEngine;
             _tempDataProvider = tempDataProvider;
+            
         }
 
-        // GET: DailyChecks
-        public async Task<IActionResult> Index()
+        
+        
+
+            // GET: DailyChecks
+        public async Task<IActionResult> Index(int pageNumber=1)
         {
-            return View(await _context.DailyChecks
-                .OrderByDescending(x => x.Date_Created)
-                .ToListAsync());
+            return View(await PaginatedList<DailyCheck>.CreateAsync(_context.DailyChecks,pageNumber,2));
         }
 
         public IActionResult NoCheckView()
@@ -85,7 +88,7 @@ namespace IT_Daily_Check.Controllers
         public async Task<IActionResult> Details(int? id)
         {
 
-            ViewBag.ISPs = _context.internetServiceProviders.ToList();
+            ViewBag.ISPs = _context.InternetServiceProviders.ToList();
             ViewBag.DeviceServices = _context.DeviceServices.ToList();
             ViewBag.CCTVs = _context.CCTVs.ToList();
             ViewBag.statuses = _context.Results.ToList();
@@ -157,7 +160,7 @@ namespace IT_Daily_Check.Controllers
         [Authorize]
         public IActionResult Create()
         {
-            ViewBag.ISPs = _context.internetServiceProviders.ToList();
+            ViewBag.ISPs = _context.InternetServiceProviders.ToList();
             ViewBag.DeviceServices = _context.DeviceServices.ToList();
             ViewBag.CCTVs = _context.CCTVs.ToList();
             ViewBag.statuses = _context.Results.ToList();
@@ -335,7 +338,7 @@ namespace IT_Daily_Check.Controllers
         public async Task<IActionResult> Edit(int id)
         {
 
-            ViewBag.ISPs = _context.internetServiceProviders.ToList();
+            ViewBag.ISPs = _context.InternetServiceProviders.ToList();
             ViewBag.DeviceServices = _context.DeviceServices.ToList();
             ViewBag.CCTVs = _context.CCTVs.ToList();
             ViewBag.statuses = _context.Results.ToList();
@@ -460,6 +463,7 @@ namespace IT_Daily_Check.Controllers
 
                 // Update the properties of the DailyCheck
                 dailyCheck.Location = viewModel.Location;
+                dailyCheck.Comments = viewModel.Comments;
                 dailyCheck.ImageUploadOne = dailyCheck.ImageUploadOne;
                 dailyCheck.ImageUploadTwo = dailyCheck.ImageUploadTwo;               
 
@@ -535,6 +539,8 @@ namespace IT_Daily_Check.Controllers
             }
 
             return View(viewModel);
+
+
         }
 
         private void UpdateDeviceChecks(ICollection<DeviceServicecheck> existingDeviceChecks, ICollection<DeviceServicecheck> submittedDeviceChecks)

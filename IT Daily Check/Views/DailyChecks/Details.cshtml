@@ -38,7 +38,7 @@
             Comments:
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Comments)
+            <textarea class="form-control" style="width: 600px; height:80px; margin-top:10px; margin-right: 10px;">@Html.DisplayFor(model => model.Comments)</textarea>
         </dd>
         @if (!string.IsNullOrEmpty(Model.ImageOneName))
         {

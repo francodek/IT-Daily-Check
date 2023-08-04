@@ -16,3 +16,12 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.pagination-container {
+    display: inline-block;
+}
+
+
+.pagination-container a {
+    margin-right: 10px;
+}
