@@ -23,6 +23,8 @@ using RazorLight;
 using IT_Daily_Check.Views.DailyChecks;
 using AutoMapper.Internal;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Xml.Linq;
+
 
 namespace IT_Daily_Check.Controllers
 {
@@ -55,7 +57,7 @@ namespace IT_Daily_Check.Controllers
             // GET: DailyChecks
         public async Task<IActionResult> Index(int pageNumber=1)
         {
-            return View(await PaginatedList<DailyCheck>.CreateAsync(_context.DailyChecks,pageNumber,10));
+            return View(await PaginatedList<DailyCheck>.CreateAsync(_context.DailyChecks.OrderByDescending(x => x.Date_Created),pageNumber,10));
         }
 
         public IActionResult NoCheckView()
@@ -207,9 +209,11 @@ namespace IT_Daily_Check.Controllers
 
             var userId = _httpcontextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
-            var firstName = user.FirstName;
-
+            var firstName = user.FirstName;            
             var lastName = user.LastName;
+            var userPhone = user.PhoneNumber;
+            var userPosition = user.Position;
+            var userEmail = user.Email;
             var dailyCheck = new DailyCheck
             {
                 Name = $"Daily Check - {model.Location} - {DateTime.Now}",
@@ -218,7 +222,10 @@ namespace IT_Daily_Check.Controllers
                 Created_By = $"{firstName} {lastName}",
                 ImageOneName = imageOneName,
                 ImageTwoName = imageTwoName,
-                Comments = model.Comments
+                Comments = model.Comments,
+                UserPhoneNumber = userPhone == null ? "" : userPhone,
+                UserPosition = userPosition == null ? "" : userPosition,
+                UserEmail = userEmail == null ? "" : userEmail
             };
 
             // Create Internet Service Checks 
@@ -274,12 +281,10 @@ namespace IT_Daily_Check.Controllers
 
             
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
-            var email = new MimeMessage();
-            email.Sender = MailboxAddress.Parse(user.Email);
-            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
-            // email.To.Add(MailboxAddress.Parse("fisayoadegun@gmail.com"));
-            email.Cc.Add(MailboxAddress.Parse("francisopogah45@gmail.com"));
-            email.To.Add(MailboxAddress.Parse("adenike.owoyemi@gmt-limited.com"));
+            var email = new MimeMessage();                     
+            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", user.Email));
+            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));            
+            //email.Cc.Add(MailboxAddress.Parse("francisopogah45@gmail.com"));            
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun" 
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";            
             var bodyBuilder = new BodyBuilder();
@@ -536,11 +541,7 @@ namespace IT_Daily_Check.Controllers
                 // Handle concurrency issues
                 // ...
                 throw;
-            }
-
-            return View(viewModel);
-
-
+            }            
         }
 
         private void UpdateDeviceChecks(ICollection<DeviceServicecheck> existingDeviceChecks, ICollection<DeviceServicecheck> submittedDeviceChecks)

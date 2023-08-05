@@ -12,6 +12,12 @@ namespace IT_Daily_Check.Models
         [EmailAddress]
         public string Email { get; set; }
 
+        [Required(ErrorMessage = "Phone Number is required")]        
+        public string PhoneNumber { get; set; }
+
+        [Required(ErrorMessage = "Position is required")]
+        public string Position { get; set; }
+
         [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
         public string Password { get; set; }

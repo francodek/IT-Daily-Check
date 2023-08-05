@@ -9,5 +9,8 @@ namespace IT_Daily_Check.Models
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
+
+        [Required]
+        public string Position { get; set; }
     }
 }

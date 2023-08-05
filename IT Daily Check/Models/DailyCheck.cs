@@ -15,6 +15,9 @@ namespace IT_Daily_Check.Models
         public string ImageOneName { get; set; }
         public string ImageTwoName { get; set; }
         public string Comments { get; set; }
+        public string UserPhoneNumber { get; set; }
+        public string UserPosition { get; set; }
+        public string UserEmail { get; set; }
 
         [NotMapped]
         [FileExtension]
