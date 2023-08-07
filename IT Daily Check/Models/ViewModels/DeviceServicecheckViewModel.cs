@@ -5,5 +5,7 @@
         public int id { get; set; }
         public string DeviceName { get; set; }
         public string Status { get; set; }
+
+        public string Description { get; set; }
     }
 }

@@ -24,7 +24,7 @@ using IT_Daily_Check.Views.DailyChecks;
 using AutoMapper.Internal;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Xml.Linq;
-
+using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore;
 
 namespace IT_Daily_Check.Controllers
 {
@@ -178,7 +178,7 @@ namespace IT_Daily_Check.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DailyCheckViewModel model)
         {
-            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location && x.Comments == model.Comments).FirstOrDefault();
+            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location && x.Comments == model.Comments ).FirstOrDefault();
             if (dailycheck != null)
             {
                 TempData["Error"] = $"A Check has already been created for {model.Location}";
@@ -252,7 +252,8 @@ namespace IT_Daily_Check.Controllers
                     .Select(deviceCheck => new DeviceServicecheck
                     {
                         DeviceName = deviceCheck.DeviceName,
-                        Status = deviceCheck.Status
+                        Status = deviceCheck.Status,
+
                     }).ToList();
             }
 

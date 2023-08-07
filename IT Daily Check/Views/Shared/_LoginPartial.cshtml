@@ -11,18 +11,19 @@
         </li>
         <li class="nav-item">
             <form class="form-inline" asp-controller="Account" asp-action="Logout">
-                <button type="submit" class="nav-link btn btn-link text-info">Logout</button>
+                <button type="submit" class="nav-link btn btn-outline-danger">Logout</button>
             </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account"
-               asp-action="Login">Login</a>
+            <a class="nav-link btn  btn-outline-success" asp-controller="Account"
+               asp-action="Login" style="margin-right:10px">Login</a>
         </li>
+
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account"
+            <a class="nav-link btn btn-outline-info" asp-controller="Account"
                asp-action="Register">Register</a>
         </li>
     }
