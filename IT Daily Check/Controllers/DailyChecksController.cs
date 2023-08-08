@@ -48,16 +48,16 @@ namespace IT_Daily_Check.Controllers
             _webHostEnvironment = webHostEnvironment;
             _razorViewEngine = razorViewEngine;
             _tempDataProvider = tempDataProvider;
-            
+
         }
 
-        
-        
 
-            // GET: DailyChecks
-        public async Task<IActionResult> Index(int pageNumber=1)
+
+
+        // GET: DailyChecks
+        public async Task<IActionResult> Index(int pageNumber = 1)
         {
-            return View(await PaginatedList<DailyCheck>.CreateAsync(_context.DailyChecks.OrderByDescending(x => x.Date_Created),pageNumber,10));
+            return View(await PaginatedList<DailyCheck>.CreateAsync(_context.DailyChecks.OrderByDescending(x => x.Date_Created), pageNumber, 10));
         }
 
         public IActionResult NoCheckView()
@@ -101,7 +101,7 @@ namespace IT_Daily_Check.Controllers
                                                         .Include(c => c.CCTVchecks)
                                                         .Include(i => i.InternetServiceSpeedchecks)
                                                         .FirstOrDefaultAsync(dc => dc.Id == id);
-            
+
             var cctvs = dailyCheck.CCTVchecks.Select(x => x.Description).ToList();
             foreach (var cctv in dailyCheck.CCTVchecks)
             {
@@ -139,13 +139,13 @@ namespace IT_Daily_Check.Controllers
                     UploadSpeed = internetService.UploadSpeed
                 }).ToList(),
                 CCTVcheckViewModels = dailyCheck.CCTVchecks.Select(cctvCheck => new CCTVcheckViewModel
-                {                    
+                {
                     Id = cctvCheck.Id,
                     Description = cctvCheck.Description,
                     Reasons = cctvCheck.Reasons,
                     Results = cctvCheck.Results,
                     Comments = cctvCheck.Comments,
-                    Location =  GetCctvLocation(cctvCheck.Description),                    
+                    Location = GetCctvLocation(cctvCheck.Description),
                 }).ToList()
             };
 
@@ -154,7 +154,7 @@ namespace IT_Daily_Check.Controllers
 
         private string GetCctvLocation(string description)
         {
-            var cctv =  _context.CCTVs.Where(x => x.Description == description).FirstOrDefault();
+            var cctv = _context.CCTVs.Where(x => x.Description == description).FirstOrDefault();
             return cctv.Location;
         }
 
@@ -178,7 +178,7 @@ namespace IT_Daily_Check.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DailyCheckViewModel model)
         {
-            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location && x.Comments == model.Comments ).FirstOrDefault();
+            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location && x.Comments == model.Comments).FirstOrDefault();
             if (dailycheck != null)
             {
                 TempData["Error"] = $"A Check has already been created for {model.Location}";
@@ -209,7 +209,7 @@ namespace IT_Daily_Check.Controllers
 
             var userId = _httpcontextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
-            var firstName = user.FirstName;            
+            var firstName = user.FirstName;
             var lastName = user.LastName;
             var userPhone = user.PhoneNumber;
             var userPosition = user.Position;
@@ -230,7 +230,7 @@ namespace IT_Daily_Check.Controllers
 
             // Create Internet Service Checks 
 
-            if(model.InternetServiceSpeedcheckViewModels != null && model.InternetServiceSpeedcheckViewModels.Any())
+            if (model.InternetServiceSpeedcheckViewModels != null && model.InternetServiceSpeedcheckViewModels.Any())
             {
                 dailyCheck.InternetServiceSpeedchecks = model.InternetServiceSpeedcheckViewModels
                     .GroupBy(i => i.ISP_NAME)
@@ -244,7 +244,7 @@ namespace IT_Daily_Check.Controllers
             }
 
             // Create Device/Service Checks
-            if(model.DeviceServicecheckViewModels != null && model.DeviceServicecheckViewModels.Any())
+            if (model.DeviceServicecheckViewModels != null && model.DeviceServicecheckViewModels.Any())
             {
                 dailyCheck.DeviceServicechecks = model.DeviceServicecheckViewModels
                     .GroupBy(i => i.DeviceName)
@@ -273,21 +273,24 @@ namespace IT_Daily_Check.Controllers
 
                     }).ToList();
             }
-            
+
             // Save the DailyCheck along with the associated checks
             _context.DailyChecks.Add(dailyCheck);
             _context.SaveChanges();
 
-            string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + Url.Action("Details", "DailyChecks") + "/" + dailyCheck.Id;            
+            string url = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + Url.Action("Details", "DailyChecks") + "/" + dailyCheck.Id;
 
-            
+
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
-            var email = new MimeMessage();                     
-            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", user.Email));
-            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));            
-            //email.Cc.Add(MailboxAddress.Parse("francisopogah45@gmail.com"));            
-            email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun" 
-                ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";            
+            var email = new MimeMessage();
+            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "Auto.Mail@gmt-limited.com"));
+            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+            email.To.Add(MailboxAddress.Parse("samuel.adeleke@gmt-limited.com"));
+            email.To.Add(MailboxAddress.Parse("adenike.owoyemi@gmt-limited.com"));
+            //email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
+            //email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));            
+            email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
+                ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();
 
             if (model.ImageUploadOne != null)
@@ -311,9 +314,9 @@ namespace IT_Daily_Check.Controllers
                 }
                 bodyBuilder.Attachments.Add(dailyCheck.ImageTwoName, fileBytes, ContentType.Parse(model.ImageUploadTwo.ContentType));
             }
-            
+
             bodyBuilder.HtmlBody = viewHtml.Replace("[url]", url);
-            
+
             email.Body = bodyBuilder.ToMessageBody();
             using var smtp = new SmtpClient();
             smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
@@ -334,7 +337,7 @@ namespace IT_Daily_Check.Controllers
              .EnableDebugMode(true)
              .AddMetadataReferences(metadataReference)
              .Build();
-            string viewHtml = await engine.CompileRenderAsync<object>(viewName, model);            
+            string viewHtml = await engine.CompileRenderAsync<object>(viewName, model);
 
             return viewHtml;
         }
@@ -387,8 +390,8 @@ namespace IT_Daily_Check.Controllers
                     DownloadSpeed = internetService.DownloadSpeed,
                     UploadSpeed = internetService.UploadSpeed
                 }).ToList(),
-                CCTVcheckViewModels = dailyCheck.CCTVchecks.Select(cctvCheck => new CCTVcheckViewModel 
-                { 
+                CCTVcheckViewModels = dailyCheck.CCTVchecks.Select(cctvCheck => new CCTVcheckViewModel
+                {
                     Id = cctvCheck.Id,
                     Description = cctvCheck.Description,
                     Reasons = cctvCheck.Reasons,
@@ -420,7 +423,7 @@ namespace IT_Daily_Check.Controllers
                                                             .FirstOrDefaultAsync(dc => dc.Id == id);
 
                 if (viewModel.ImageUploadOne != null)
-                {                    
+                {
                     string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(viewModel.ImageOneName))
                     {
@@ -441,7 +444,7 @@ namespace IT_Daily_Check.Controllers
 
 
                 if (viewModel.ImageUploadTwo != null)
-                {                    
+                {
                     string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(viewModel.ImageTwoName))
                     {
@@ -471,7 +474,7 @@ namespace IT_Daily_Check.Controllers
                 dailyCheck.Location = viewModel.Location;
                 dailyCheck.Comments = viewModel.Comments;
                 dailyCheck.ImageUploadOne = dailyCheck.ImageUploadOne;
-                dailyCheck.ImageUploadTwo = dailyCheck.ImageUploadTwo;               
+                dailyCheck.ImageUploadTwo = dailyCheck.ImageUploadTwo;
 
                 List<InternetServiceSpeedcheckViewModel> internetServiceSpeedcheckViewModel = viewModel.InternetServiceSpeedcheckViewModels;
                 if (internetServiceSpeedcheckViewModel != null)
@@ -511,8 +514,8 @@ namespace IT_Daily_Check.Controllers
                     UpdateDeviceChecks(dailyCheck.DeviceServicechecks, deviceChecks);
                 }
 
-                
-                    List<CCTVcheckViewModel> cCTVcheckViewModel = viewModel.CCTVcheckViewModels;
+
+                List<CCTVcheckViewModel> cCTVcheckViewModel = viewModel.CCTVcheckViewModels;
                 if (cCTVcheckViewModel != null)
                 {
                     ICollection<CCTVcheck> cCTVchecks = cCTVcheckViewModel
@@ -542,7 +545,7 @@ namespace IT_Daily_Check.Controllers
                 // Handle concurrency issues
                 // ...
                 throw;
-            }            
+            }
         }
 
         private void UpdateDeviceChecks(ICollection<DeviceServicecheck> existingDeviceChecks, ICollection<DeviceServicecheck> submittedDeviceChecks)
@@ -613,7 +616,7 @@ namespace IT_Daily_Check.Controllers
             if (dailyCheck != null)
             {
                 if (dailyCheck.ImageOneName != null)
-                {                                        
+                {
                     string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(dailyCheck.ImageOneName))
                     {
@@ -627,7 +630,7 @@ namespace IT_Daily_Check.Controllers
 
 
                 if (dailyCheck.ImageTwoName != null)
-                {                    
+                {
                     string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
                     if (!string.IsNullOrEmpty(dailyCheck.ImageTwoName))
                     {
@@ -640,14 +643,14 @@ namespace IT_Daily_Check.Controllers
                 }
                 _context.DailyChecks.Remove(dailyCheck);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool DailyCheckExists(int id)
         {
-          return _context.DailyChecks.Any(e => e.Id == id);
+            return _context.DailyChecks.Any(e => e.Id == id);
         }
     }
 }
