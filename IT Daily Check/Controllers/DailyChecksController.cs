@@ -283,12 +283,9 @@ namespace IT_Daily_Check.Controllers
 
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
             var email = new MimeMessage();
-            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "Auto.Mail@gmt-limited.com"));
-            email.To.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
-            email.To.Add(MailboxAddress.Parse("samuel.adeleke@gmt-limited.com"));
-            email.To.Add(MailboxAddress.Parse("adenike.owoyemi@gmt-limited.com"));
-            //email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
-            //email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));            
+           
+            email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
+            email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));            
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();
