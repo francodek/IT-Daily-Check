@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IT_Daily_Check.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User>
+    public class ApplicationDbContext : IdentityDbContext<User, IdentityRole, string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

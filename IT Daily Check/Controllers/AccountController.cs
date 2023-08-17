@@ -195,5 +195,10 @@ namespace IT_Daily_Check.Controllers
         {
             return View();
         }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

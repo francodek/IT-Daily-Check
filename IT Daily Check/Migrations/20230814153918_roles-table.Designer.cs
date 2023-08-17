@@ -4,6 +4,7 @@ using IT_Daily_Check.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IT_Daily_Check.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230814153918_roles-table")]
+    partial class rolestable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +40,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CCTVs", (string)null);
+                    b.ToTable("CCTVs");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.CCTVcheck", b =>
@@ -73,7 +75,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasIndex("DailyChecksId");
 
-                    b.ToTable("CCTVchecks", (string)null);
+                    b.ToTable("CCTVchecks");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.DailyCheck", b =>
@@ -116,7 +118,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DailyChecks", (string)null);
+                    b.ToTable("DailyChecks");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.DeviceService", b =>
@@ -135,7 +137,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DeviceServices", (string)null);
+                    b.ToTable("DeviceServices");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.DeviceServicecheck", b =>
@@ -159,7 +161,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasIndex("DailyChecksId");
 
-                    b.ToTable("DeviceServicechecks", (string)null);
+                    b.ToTable("DeviceServicechecks");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.InternetServiceProvider", b =>
@@ -175,7 +177,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("InternetServiceProviders", (string)null);
+                    b.ToTable("InternetServiceProviders");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.InternetServiceSpeedcheck", b =>
@@ -202,7 +204,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasIndex("DailyChecksId");
 
-                    b.ToTable("InternetServiceSpeedchecks", (string)null);
+                    b.ToTable("InternetServiceSpeedchecks");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.Location", b =>
@@ -218,7 +220,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.Result", b =>
@@ -234,7 +236,7 @@ namespace IT_Daily_Check.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Results", (string)null);
+                    b.ToTable("Results");
                 });
 
             modelBuilder.Entity("IT_Daily_Check.Models.User", b =>

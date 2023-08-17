@@ -159,7 +159,7 @@ namespace IT_Daily_Check.Controllers
         }
 
         // GET: DailyChecks/Create
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewBag.ISPs = _context.InternetServiceProviders.ToList();
@@ -283,11 +283,11 @@ namespace IT_Daily_Check.Controllers
 
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
             var email = new MimeMessage();
-            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "Auto.Mail@gmt-limited.com"));
-            email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
-            email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));
-            //email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
-            //email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "gmt.dailycheck@gmt-limited.com"));
+           // email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
+           // email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));
+           // email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
+            email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();
@@ -329,7 +329,7 @@ namespace IT_Daily_Check.Controllers
         private async Task<string> RenderViewToStringAsync<TModel>(string viewName, TModel model)
         {
             string assemblyFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            var metadataReference = Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(Path.Combine(assemblyFolder, "IT Daily check.dll"));
+            var metadataReference = Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(Path.Combine(assemblyFolder, "ITDailycheck.dll"));
             var engine = new RazorLightEngineBuilder()
              .UseMemoryCachingProvider()
              .UseEmbeddedResourcesProject(typeof(EmailTemplateModel))
