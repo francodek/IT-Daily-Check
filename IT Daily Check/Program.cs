@@ -4,7 +4,7 @@ using System.Configuration;
 using Microsoft.AspNetCore.Identity;
 using IT_Daily_Check.Models;
 using AutoMapper;
-using ITDailyCheck.Settings;
+using IT_Daily_Check.Settings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using ITDailyCheck.Services.Interfaces;

@@ -7,7 +7,7 @@ using IT_Daily_Check.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using MimeKit;
-using ITDailyCheck.Settings;
+using IT_Daily_Check.Settings;
 using MailKit.Security;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;

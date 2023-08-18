@@ -1,6 +1,6 @@
 ﻿using IT_Daily_Check.Models;
 using ITDailyCheck.Services.Interfaces;
-using ITDailyCheck.Settings;
+using IT_Daily_Check.Settings;
 using IT_Daily_Check.Views.DailyChecks;
 using MailKit.Net.Smtp;
 using MailKit.Security;

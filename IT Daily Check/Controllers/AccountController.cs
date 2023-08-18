@@ -3,6 +3,7 @@ using AutoMapper.Internal;
 using Humanizer;
 using IT_Daily_Check.Models;
 using IT_Daily_Check.Settings;
+using ITDailyCheck.Controllers;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Authentication;
