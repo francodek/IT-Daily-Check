@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using IT_Daily_Check.Models;
 using AutoMapper;
 using IT_Daily_Check.Settings;
-using IT_Daily_Check.Factory;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 

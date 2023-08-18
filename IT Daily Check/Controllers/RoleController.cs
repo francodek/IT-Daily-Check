@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using IT_Daily_Check.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IT_Daily_Check.Controllers
 {
+    [Authorize (Roles ="Admin")]
     public class RoleController : Controller
     {
         private RoleManager<IdentityRole> roleManager;

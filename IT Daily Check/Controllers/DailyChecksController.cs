@@ -159,7 +159,7 @@ namespace IT_Daily_Check.Controllers
         }
 
         // GET: DailyChecks/Create
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, DailyCheckUser")]
         public IActionResult Create()
         {
             ViewBag.ISPs = _context.InternetServiceProviders.ToList();
@@ -173,7 +173,7 @@ namespace IT_Daily_Check.Controllers
         // POST: DailyChecks/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize]
+        [Authorize(Roles = "Admin, DailyCheckUser")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DailyCheckViewModel model)
@@ -284,10 +284,11 @@ namespace IT_Daily_Check.Controllers
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
             var email = new MimeMessage();
             email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "gmt.dailycheck@gmt-limited.com"));
-           // email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
-           // email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));
-           // email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
-            email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+           // email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
+            email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
+            email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));
+          //  email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
+          //  email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();
