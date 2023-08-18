@@ -4,9 +4,11 @@ using System.Configuration;
 using Microsoft.AspNetCore.Identity;
 using IT_Daily_Check.Models;
 using AutoMapper;
-using IT_Daily_Check.Settings;
+using ITDailyCheck.Settings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using ITDailyCheck.Services.Interfaces;
+using ITDailyCheck.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +18,13 @@ builder.Services.AddRazorPages();
 // we added this after the database model was created
 builder.Services.AddHttpContextAccessor();
 
+
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IDailyCheckEmailService, DailyCheckEmailService>();
+
 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 

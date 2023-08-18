@@ -19,6 +19,9 @@ namespace IT_Daily_Check.Models
         public string UserPosition { get; set; }
         public string UserEmail { get; set; }
 
+        public string ImageOneBase64 { get; set; }
+        public string ImageTwoBase64 { get; set; }
+
         [NotMapped]
         [FileExtension]
         [Display(Name = "Choose Image")]

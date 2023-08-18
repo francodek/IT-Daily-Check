@@ -1,4 +1,5 @@
 ﻿@model IT_Daily_Check.Models.DailyCheck
+@using Microsoft.AspNetCore.Http
 
 
 
@@ -6,6 +7,32 @@
     <h3>Good Morning All</h3>
     <br />
     <h3>@Model.Comments</h3>
+    <br />
+    @if (!string.IsNullOrEmpty(Model.ImageOneName))
+    {
+        <div>
+            <div><img src="data:image/png;base64,@Model.ImageOneBase64" /></div>
+        </div>
+    }
+    else
+    {
+        <div>
+            <div></div>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ImageTwoName))
+    {
+        <div>
+            <div><img src="data:image/png;base64,@Model.ImageTwoBase64" /></div>
+        </div>
+    }
+    else
+    {
+        <div>
+            <div></div>
+        </div>
+    }
+
     <dt class="col-sm-2">
         <strong>Internet Speed Check</strong>
     </dt>
@@ -213,8 +240,7 @@
     <br />
     <p style="color:darkgreen; font-size:14px;">Please consider the environment before printing this e-mail</p>    
     <p style="color: darkblue; font-size:14px;"><strong><span>Disclaimer.&nbsp;</span></strong>The information in this document has been reviewed and is believed to be accurate. However, neither GMT Nigeria Limited nor its affiliates assume any responsibility for inaccuracies, errors, or omissions that may be contained herein. In no event will GMT Nigeria Limited or its affiliates be liable for direct, indirect, special, incidental, or consequential damages resulting from any defect or omission in this document, even if advised of the possibility of such damages.</p>
-    
-    
+        
 
 
 

@@ -8,6 +8,15 @@
 
 <h4>DailyCheck</h4>
 <hr />
+<form class="form-inline" asp-controller="DailyChecks" asp-action="SendDailyCheckEmail" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <div style="display:flex">
+        <label class="control-label" style="margin-right:20px">Email:</label>
+        <input type="email" value="" class="form-control" name="toemail" style="margin-right:10px; width:400px" />
+        <input type="submit" value="Send Email" class="btn btn-primary" style="margin-right:10px" />
+    </div>
+</form>
+<hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit" enctype="multipart/form-data">

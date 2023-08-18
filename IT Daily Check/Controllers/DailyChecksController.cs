@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IT_Daily_Check.Data;
 using IT_Daily_Check.Models;
@@ -12,21 +7,17 @@ using IT_Daily_Check.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using MimeKit;
-using IT_Daily_Check.Settings;
+using ITDailyCheck.Settings;
 using MailKit.Security;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Razor;
 using RazorLight;
 using IT_Daily_Check.Views.DailyChecks;
-using AutoMapper.Internal;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Xml.Linq;
-using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore;
+using ITDailyCheck.Services.Interfaces;
 
-namespace IT_Daily_Check.Controllers
+namespace ITDailyCheck.Controllers
 {
     public class DailyChecksController : Controller
     {
@@ -37,9 +28,11 @@ namespace IT_Daily_Check.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IRazorViewEngine _razorViewEngine;
         private readonly ITempDataProvider _tempDataProvider;
+        private readonly IDailyCheckEmailService _dailyCheckEmail;
 
 
-        public DailyChecksController(ApplicationDbContext context, IHttpContextAccessor httpcontextAccessor, UserManager<User> userManager, IOptions<MailSettings> mailSettings, IWebHostEnvironment webHostEnvironment, IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider)
+        public DailyChecksController(ApplicationDbContext context, IHttpContextAccessor httpcontextAccessor, UserManager<User> userManager, IOptions<MailSettings> mailSettings,
+            IWebHostEnvironment webHostEnvironment, IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider, IDailyCheckEmailService dailyCheckEmail)
         {
             _context = context;
             _httpcontextAccessor = httpcontextAccessor;
@@ -48,7 +41,7 @@ namespace IT_Daily_Check.Controllers
             _webHostEnvironment = webHostEnvironment;
             _razorViewEngine = razorViewEngine;
             _tempDataProvider = tempDataProvider;
-
+            _dailyCheckEmail = dailyCheckEmail;            
         }
 
 
@@ -188,13 +181,15 @@ namespace IT_Daily_Check.Controllers
 
             // Image Creation Section
             string imageOneName = "";
+            
             if (model.ImageUploadOne != null)
             {
                 string folder = "media/images/";
                 imageOneName = Guid.NewGuid().ToString() + "_" + model.ImageUploadOne.FileName;
                 string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder, imageOneName);
-
-                await model.ImageUploadOne.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+                FileStream fs1 = new FileStream(serverFolder, FileMode.Create);
+                await model.ImageUploadOne.CopyToAsync(fs1);
+                fs1.Close();
             }
 
             string imageTwoName = "";
@@ -203,8 +198,28 @@ namespace IT_Daily_Check.Controllers
                 string folder = "media/images/";
                 imageTwoName = Guid.NewGuid().ToString() + "_" + model.ImageUploadTwo.FileName;
                 string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder, imageTwoName);
+                FileStream fs2 = new FileStream(serverFolder, FileMode.Create);                
+                await model.ImageUploadTwo.CopyToAsync(fs2);
+                fs2.Close();
+            }
 
-                await model.ImageUploadTwo.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+            string base64Image1 = "";
+
+            if (model.ImageUploadOne != null)
+            {
+                string imageOneuploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");                               
+                string filePath1 = Path.Combine(imageOneuploadsDir, imageOneName);                
+                byte[] imageBytes = System.IO.File.ReadAllBytes(filePath1);
+                base64Image1 = Convert.ToBase64String(imageBytes);                                
+            }
+
+            string base64Image2 = "";
+            if (model.ImageUploadTwo != null)
+            {
+                string imageTwouploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/images/");
+                string filePath2 = Path.Combine(imageTwouploadsDir, imageTwoName);
+                byte[] imageBytes = System.IO.File.ReadAllBytes(filePath2);
+                base64Image2 = Convert.ToBase64String(imageBytes);
             }
 
             var userId = _httpcontextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -225,7 +240,9 @@ namespace IT_Daily_Check.Controllers
                 Comments = model.Comments,
                 UserPhoneNumber = userPhone == null ? "" : userPhone,
                 UserPosition = userPosition == null ? "" : userPosition,
-                UserEmail = userEmail == null ? "" : userEmail
+                UserEmail = userEmail == null ? "" : userEmail,
+                ImageOneBase64 = base64Image1,
+                ImageTwoBase64 = base64Image2
             };
 
             // Create Internet Service Checks 
@@ -284,36 +301,36 @@ namespace IT_Daily_Check.Controllers
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
             var email = new MimeMessage();
             email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "gmt.dailycheck@gmt-limited.com"));
-           // email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
+            //email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
             email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
             email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));
-          //  email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
-          //  email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+            //email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
+            //email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();
 
-            if (model.ImageUploadOne != null)
-            {
-                byte[] fileBytes;
-                using (var ms = new MemoryStream())
-                {
-                    model.ImageUploadOne.CopyTo(ms);
-                    fileBytes = ms.ToArray();
-                }
-                bodyBuilder.Attachments.Add(dailyCheck.ImageOneName, fileBytes, ContentType.Parse(model.ImageUploadOne.ContentType));
-            }
+            //if (model.ImageUploadOne != null)
+            //{
+            //    byte[] fileBytes;
+            //    using (var ms = new MemoryStream())
+            //    {
+            //        model.ImageUploadOne.CopyTo(ms);
+            //        fileBytes = ms.ToArray();
+            //    }
+            //    bodyBuilder.Attachments.Add(dailyCheck.ImageOneName, fileBytes, ContentType.Parse(model.ImageUploadOne.ContentType));
+            //}
 
-            if (model.ImageUploadTwo != null)
-            {
-                byte[] fileBytes;
-                using (var ms = new MemoryStream())
-                {
-                    model.ImageUploadTwo.CopyTo(ms);
-                    fileBytes = ms.ToArray();
-                }
-                bodyBuilder.Attachments.Add(dailyCheck.ImageTwoName, fileBytes, ContentType.Parse(model.ImageUploadTwo.ContentType));
-            }
+            //if (model.ImageUploadTwo != null)
+            //{
+            //    byte[] fileBytes;
+            //    using (var ms = new MemoryStream())
+            //    {
+            //        model.ImageUploadTwo.CopyTo(ms);
+            //        fileBytes = ms.ToArray();
+            //    }
+            //    bodyBuilder.Attachments.Add(dailyCheck.ImageTwoName, fileBytes, ContentType.Parse(model.ImageUploadTwo.ContentType));
+            //}
 
             bodyBuilder.HtmlBody = viewHtml.Replace("[url]", url);
 
@@ -398,11 +415,22 @@ namespace IT_Daily_Check.Controllers
                     Results = cctvCheck.Results,
                     Comments = cctvCheck.Comments
                 }).ToList()
-            };
-
+            };                        
             return View(viewModel);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SendDailyCheckEmail(int id, DailyCheckViewModel viewModel, string toEmail)
+        {
+            var dailyCheck = await _context.DailyChecks.Include(dc => dc.DeviceServicechecks)
+                                                        .Include(c => c.CCTVchecks)
+                                                        .Include(i => i.InternetServiceSpeedchecks)
+                                                        .FirstOrDefaultAsync(dc => dc.Id == id);
+            string detailsUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + Url.Action("Details", "DailyChecks") + "/" + dailyCheck.Id;
+            await _dailyCheckEmail.SendDailyCheckToEmail(dailyCheck, toEmail, detailsUrl, _mailSettings.Host, _mailSettings.Port, _mailSettings.Mail, _mailSettings.Password);
+            TempData["Success"] = "Email Sent Successfully";
+            return RedirectToAction("Edit", new { id = dailyCheck.Id });
+        }
 
         [Authorize]
         [HttpPost]
@@ -436,10 +464,14 @@ namespace IT_Daily_Check.Controllers
                     string imageOneName = Guid.NewGuid().ToString() + "_" + viewModel.ImageUploadOne.FileName;
                     string filePath1 = Path.Combine(imageOneuploadsDir, imageOneName);
                     FileStream fs1 = new FileStream(filePath1, FileMode.Create);
-                    await viewModel.ImageUploadOne.CopyToAsync(fs1);
+                    await viewModel.ImageUploadOne.CopyToAsync(fs1);                    
                     fs1.Close();
+                    byte[] imageBytes = System.IO.File.ReadAllBytes(filePath1);
+                    string base64Image = Convert.ToBase64String(imageBytes);
                     dailyCheck.ImageOneName = imageOneName;
+                    dailyCheck.ImageOneBase64 = base64Image;
                 }
+                
 
 
 
@@ -459,7 +491,10 @@ namespace IT_Daily_Check.Controllers
                     FileStream fs2 = new FileStream(filePath2, FileMode.Create);
                     await viewModel.ImageUploadTwo.CopyToAsync(fs2);
                     fs2.Close();
+                    byte[] imageBytes = System.IO.File.ReadAllBytes(filePath2);
+                    string base64Image = Convert.ToBase64String(imageBytes);
                     dailyCheck.ImageTwoName = imageTwoName;
+                    dailyCheck.ImageTwoBase64 = base64Image;
                 }
 
 
