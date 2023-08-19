@@ -81,26 +81,13 @@ namespace ITDailyCheck.Controllers
 
         // GET: DailyChecks/Details/5
         public async Task<IActionResult> Details(int? id)
-        {
-
-            ViewBag.ISPs = _context.InternetServiceProviders.ToList();
-            ViewBag.DeviceServices = _context.DeviceServices.ToList();
-            ViewBag.CCTVs = _context.CCTVs.ToList();
-            ViewBag.statuses = _context.Results.ToList();
-            ViewBag.Locations = _context.Locations.ToList();
+        {           
 
             // Retrieve the DailyCheck and its associated DeviceChecks from the database
             var dailyCheck = await _context.DailyChecks.Include(dc => dc.DeviceServicechecks)
                                                         .Include(c => c.CCTVchecks)
                                                         .Include(i => i.InternetServiceSpeedchecks)
-                                                        .FirstOrDefaultAsync(dc => dc.Id == id);
-
-            var cctvs = dailyCheck.CCTVchecks.Select(x => x.Description).ToList();
-            foreach (var cctv in dailyCheck.CCTVchecks)
-            {
-                var cctvLocation = await _context.CCTVs.Where(x => x.Description == cctv.Description).FirstOrDefaultAsync();
-
-            }
+                                                        .FirstOrDefaultAsync(dc => dc.Id == id);            
 
             if (dailyCheck == null)
             {
@@ -122,7 +109,62 @@ namespace ITDailyCheck.Controllers
                 {
                     id = deviceCheck.Id,
                     DeviceName = deviceCheck.DeviceName,
-                    Status = deviceCheck.Status
+                    Status = deviceCheck.Status,                    
+                }).ToList(),
+                InternetServiceSpeedcheckViewModels = dailyCheck.InternetServiceSpeedchecks.Select(internetService => new InternetServiceSpeedcheckViewModel
+                {
+                    Id = internetService.Id,
+                    ISP_NAME = internetService.ISP_NAME,
+                    DownloadSpeed = internetService.DownloadSpeed,
+                    UploadSpeed = internetService.UploadSpeed
+                }).ToList(),
+                CCTVcheckViewModels = dailyCheck.CCTVchecks.Select(cctvCheck => new CCTVcheckViewModel
+                {
+                    Id = cctvCheck.Id,
+                    Description = cctvCheck.Description,
+                    Reasons = cctvCheck.Reasons,
+                    Results = cctvCheck.Results,
+                    Comments = cctvCheck.Comments,
+                    Location = GetCctvLocation(cctvCheck.Description),
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        // GET: DailyChecks/Details/5
+        public async Task<IActionResult> ExportToPdf(int? id)
+        {
+            // Retrieve the DailyCheck and its associated DeviceChecks from the database
+            var dailyCheck = await _context.DailyChecks.Include(dc => dc.DeviceServicechecks)
+                                                        .Include(c => c.CCTVchecks)
+                                                        .Include(i => i.InternetServiceSpeedchecks)
+                                                        .FirstOrDefaultAsync(dc => dc.Id == id);           
+
+
+
+            if (dailyCheck == null)
+            {
+                return NotFound();
+            }
+
+            // Map the DailyCheck and DeviceChecks to the view model
+            var viewModel = new DailyCheckViewModel
+            {
+                Id = dailyCheck.Id,
+                Name = dailyCheck.Name,
+                Location = dailyCheck.Location,
+                Created_By = dailyCheck.Created_By,
+                Comments = dailyCheck.Comments,
+                Date_Created = dailyCheck.Date_Created,
+                ImageOneName = dailyCheck.ImageOneName,
+                ImageTwoName = dailyCheck.ImageTwoName,
+                DeviceServicecheckViewModels = dailyCheck.DeviceServicechecks.Select(deviceCheck => new DeviceServicecheckViewModel
+                {
+                    id = deviceCheck.Id,
+                    DeviceName = deviceCheck.DeviceName,
+                    Status = deviceCheck.Status,
+                    Description = GetDeviceDescription(deviceCheck.DeviceName)
                 }).ToList(),
                 InternetServiceSpeedcheckViewModels = dailyCheck.InternetServiceSpeedchecks.Select(internetService => new InternetServiceSpeedcheckViewModel
                 {
@@ -149,6 +191,12 @@ namespace ITDailyCheck.Controllers
         {
             var cctv = _context.CCTVs.Where(x => x.Description == description).FirstOrDefault();
             return cctv.Location;
+        }
+
+        private string GetDeviceDescription(string deviceName)
+        {
+            var deviceService = _context.DeviceServices.Where(x => x.Name == deviceName).FirstOrDefault();
+            return deviceService.Description;
         }
 
         // GET: DailyChecks/Create

@@ -31,8 +31,8 @@ namespace ITDailyCheck.Services
 
             string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
             var email = new MimeMessage();            
-            //email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
-            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "gmt.dailycheck@gmt-limited.com"));
+            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
+            //email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "gmt.dailycheck@gmt-limited.com"));
             email.To.Add(MailboxAddress.Parse(toEmail));            
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";

@@ -6,136 +6,163 @@
 
 <h1>Details</h1>
 
-<div>
-    <h4>DailyCheck</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            <strong>Name:</strong>
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            <strong> Date:</strong>
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Date_Created)
-        </dd>
-        <dt class = "col-sm-2">
-            <strong> Location:</strong>
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Location)
-        </dd>
-        <dt class = "col-sm-2">
-            Created By:
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Created_By)
-        </dd>
-        <dt class="col-sm-2">
-            Comments:
-        </dt>
-        <dd class="col-sm-10">
-            <textarea class="form-control" style="width: 600px; height:80px; margin-top:10px; margin-right: 10px;">@Html.DisplayFor(model => model.Comments)</textarea>
-        </dd>
-        @if (!string.IsNullOrEmpty(Model.ImageOneName))
-        {
-            <div>
-                <div><img src="~/media/images/@Model.ImageOneName" /></div>
-            </div>
-        }
-        else
-        {
-            <div>
-                <div></div>
-            </div>
-        }
+<div id="detailsPage">
+    <div>
+        <h4>DailyCheck</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                <strong>Name:</strong>
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt class="col-sm-2">
+                <strong> Date:</strong>
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Date_Created)
+            </dd>
+            <dt class="col-sm-2">
+                <strong> Location:</strong>
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Location)
+            </dd>
+            <dt class="col-sm-2">
+                Created By:
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Created_By)
+            </dd>
+            <dt class="col-sm-2">
+                Comments:
+            </dt>
+            <dd class="col-sm-10">
+                <textarea class="form-control" style="width: 600px; height:80px; margin-top:10px; margin-right: 10px;">@Html.DisplayFor(model => model.Comments)</textarea>
+            </dd>
+            @if (!string.IsNullOrEmpty(Model.ImageOneName))
+            {
+                <div>
+                    <div><img src="~/media/images/@Model.ImageOneName" /></div>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <div></div>
+                </div>
+            }
 
-        @if (!string.IsNullOrEmpty(Model.ImageTwoName))
-        {
-            <div>
-                <div><img src="~/media/images/@Model.ImageTwoName" /></div>
-            </div>
-        }
-        else
-        {
-            <div>
-                <div></div>
-            </div>
-        }
-</div>
-        <dt class="col-sm-2">
-            <strong>Internet Speed Check</strong>
-        </dt>
-        <dd class=" =col-sm-10">
-            <style>
-                table {
-                    border-collapse: collapse;
-                    width: 100%;
-                }
+            @if (!string.IsNullOrEmpty(Model.ImageTwoName))
+            {
+                <div>
+                    <div><img src="~/media/images/@Model.ImageTwoName" /></div>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <div></div>
+                </div>
+            }
+    </div>
+    <dt class="col-sm-2">
+        <strong>Internet Speed Check</strong>
+    </dt>
+    <dd class=" =col-sm-10">
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
 
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
 
-                th {
-                    background-color: #f2f2f2;
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        <table>
+            <thead>
+                <tr>
+                    <th>ISP NAME</th>
+                    <th>Download Speed</th>
+                    <th> Upload Speed</th>
+
+                </tr>
+                @foreach (var ISPs in Model.InternetServiceSpeedcheckViewModels)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.ISP_NAME)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.DownloadSpeed)Mbps
+                        </td>
+                        <td>
+                            @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.UploadSpeed)Mbps
+                        </td>
+                    </tr>
                 }
-            </style>
+            </thead>
+        </table>
+
+    </dd>
+    <dt class="col-sm-2">
+        <strong>Devices/Services Check</strong>
+    </dt>
+
+    <dd class=" =col-sm-10">
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        <div id="deviceChecksContainer" style="display:flex">
+            @{
+                var deviceChecksGroup1 = Model.DeviceServicecheckViewModels.Take(10);
+                var deviceChecksGroup2 = Model.DeviceServicecheckViewModels.Skip(10);
+            }
             <table>
                 <thead>
                     <tr>
-                        <th>ISP NAME</th>
-                        <th>Download Speed</th>
-                        <th> Upload Speed</th>
+                        <th>Device Name</th>
+                        <th>Status</th>
 
                     </tr>
-                    @foreach (var ISPs in Model.InternetServiceSpeedcheckViewModels)
+                    @foreach (var deviceCheck in deviceChecksGroup1)
                     {
                         <tr>
                             <td>
-                                @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.ISP_NAME)
+                                @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.DeviceName)
                             </td>
                             <td>
-                                @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.DownloadSpeed)Mbps
-                            </td>
-                            <td>
-                                @Html.DisplayFor(InternetServiceSpeedcheckViewModels => ISPs.UploadSpeed)Mbps
+                                @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.Status)
                             </td>
                         </tr>
                     }
                 </thead>
             </table>
-
-        </dd>
-        <dt class="col-sm-2">
-            <strong>Devices/Services Check</strong>
-        </dt>
-        
-        <dd class=" =col-sm-10">
-            <style>
-                table {
-                    border-collapse: collapse;
-                    width: 100%;
-                }
-
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                }
-
-                th {
-                    background-color: #f2f2f2;
-                }
-            </style>
-            <div id="deviceChecksContainer" style="display:flex">
-                @{
-                    var deviceChecksGroup1 = Model.DeviceServicecheckViewModels.Take(10);
-                    var deviceChecksGroup2 = Model.DeviceServicecheckViewModels.Skip(10);
-                }
+            @if (!deviceChecksGroup2.Any())
+            {
+                <div></div>
+            }
+            else
+            {
                 <table>
                     <thead>
                         <tr>
@@ -143,7 +170,7 @@
                             <th>Status</th>
 
                         </tr>
-                        @foreach (var deviceCheck in deviceChecksGroup1)
+                        @foreach (var deviceCheck in deviceChecksGroup2)
                         {
                             <tr>
                                 <td>
@@ -156,94 +183,71 @@
                         }
                     </thead>
                 </table>
-                @if(!deviceChecksGroup2.Any())
+            }
+
+        </div>
+
+    </dd>
+    <dt class="col-sm-2">
+        <strong>CCTV Check</strong>
+    </dt>
+    <dd class=" =col-sm-10">
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Results</th>
+                    <th>Reasons</th>
+                    <th style="width">Comments</th>
+                </tr>
+                @foreach (var CCTVs in Model.CCTVcheckViewModels)
                 {
-                    <div></div>
-                }
-                else
-                {
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Device Name</th>
-                                <th>Status</th>
-
-                            </tr>
-                            @foreach (var deviceCheck in deviceChecksGroup2)
-                            {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.DeviceName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(DeviceServicecheckViewModels => deviceCheck.Status)
-                                    </td>
-                                </tr>
-                            }
-                        </thead>
-                    </table>
-                }
-                  
-            </div>
-           
-        </dd>
-        <dt class="col-sm-2">
-            <strong>CCTV Check</strong>
-        </dt>
-        <dd class=" =col-sm-10">
-            <style>
-                table {
-                    border-collapse: collapse;
-                    width: 100%;
-                }
-
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                }
-
-                th {
-                    background-color: #f2f2f2;
-                }
-            </style>
-            <table>
-                <thead>
                     <tr>
-                        <th>Description</th>
-                        <th>Location</th>
-                        <th>Results</th>
-                        <th>Reasons</th>
-                        <th>Comments</th>
+                        <td>
+                            @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Location)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Results)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Reasons)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Comments)
+                        </td>
                     </tr>
-                    @foreach (var CCTVs in Model.CCTVcheckViewModels)
-                    {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Description)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Location)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Results)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Reasons)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Comments)
-                            </td>
-                        </tr>
-                    }
-                </thead>
-            </table>
-        </dd>
+                }
+            </thead>
+        </table>
+    </dd>
     </dl>
-   
+
+</div>   
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a> |
     <a asp-action="Index" class="btn btn-danger">Back to List</a>
 </div>
+
+
 
 
 
