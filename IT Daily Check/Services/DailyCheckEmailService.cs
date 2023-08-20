@@ -29,16 +29,21 @@ namespace ITDailyCheck.Services
             var userId = _httpcontextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(userId);
 
-            string viewHtml = await RenderViewToStringAsync("EmailTemplate", dailyCheck);
+            string viewHtml = await RenderViewToStringAsync("DailyCheckEmailTemplate", dailyCheck);
             var email = new MimeMessage();            
-            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
-            //email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "gmt.dailycheck@gmt-limited.com"));
+            //email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
+            email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "gmt.dailycheck@gmt-limited.com"));
             email.To.Add(MailboxAddress.Parse(toEmail));            
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();            
 
-            bodyBuilder.HtmlBody = viewHtml.Replace("[url]", url);
+            bodyBuilder.HtmlBody = viewHtml.Replace("[url]", url)
+                                            .Replace("[firstname]", user.FirstName)
+                                            .Replace("[lastname]", user.LastName)
+                                            .Replace("[userPosition]", user.Position)
+                                            .Replace("[userPhoneNumber]", user.PhoneNumber)
+                                            .Replace("[userEmail]", user.Email);
 
             email.Body = bodyBuilder.ToMessageBody();
             try
@@ -62,7 +67,7 @@ namespace ITDailyCheck.Services
             var metadataReference = Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(Path.Combine(assemblyFolder, "ITDailycheck.dll"));
             var engine = new RazorLightEngineBuilder()
              .UseMemoryCachingProvider()
-             .UseEmbeddedResourcesProject(typeof(EmailTemplateModel))
+             .UseEmbeddedResourcesProject(typeof(DailyCheckEmailTemplateModel))
              .EnableDebugMode(true)
              .AddMetadataReferences(metadataReference)
              .Build();

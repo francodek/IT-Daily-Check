@@ -103,7 +103,9 @@
         </style>
         <div id="deviceChecksContainer" style="display:flex">
             @{
-                var deviceChecksGroup1 = Model.DeviceServicecheckViewModels;                
+                var deviceChecksGroup1 = Model.DeviceServicecheckViewModels;
+                        var namesToRemove = new List<string> { "I.T. Generator Status", "CCTV Status" };
+                        var filteredDeviceChecksGroup1 = deviceChecksGroup1.Where(item => !namesToRemove.Contains(item.DeviceName)).ToList();
             }
             <table>
                 <thead>
@@ -116,7 +118,7 @@
                         <th>Status</th>
 
                     </tr>
-                    @foreach (var deviceCheck in deviceChecksGroup1)
+                            @foreach (var deviceCheck in filteredDeviceChecksGroup1)
                     {
                         <tr>
                             <td>

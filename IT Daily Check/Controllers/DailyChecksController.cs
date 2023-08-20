@@ -408,7 +408,7 @@ namespace ITDailyCheck.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin, DailyCheckUser")]
         public async Task<IActionResult> Edit(int id)
         {
 
@@ -467,7 +467,7 @@ namespace ITDailyCheck.Controllers
             return View(viewModel);
         }
 
-        [HttpPost]
+        [Authorize(Roles = "Admin, DailyCheckUser")]
         public async Task<IActionResult> SendDailyCheckEmail(int id, DailyCheckViewModel viewModel, string toEmail)
         {
             var dailyCheck = await _context.DailyChecks.Include(dc => dc.DeviceServicechecks)
@@ -480,7 +480,7 @@ namespace ITDailyCheck.Controllers
             return RedirectToAction("Edit", new { id = dailyCheck.Id });
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, DailyCheckUser")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, DailyCheckViewModel viewModel)
