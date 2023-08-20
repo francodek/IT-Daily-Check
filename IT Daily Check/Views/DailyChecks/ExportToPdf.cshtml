@@ -20,13 +20,7 @@
 <div id="detailsPage">
     <div>   
        
-        <dl class="row">
-            <div style="display: flex;">
-                <h4 style="margin-right: 20px; font-size:12px;">@Html.DisplayFor(model => model.Date_Created)</h4>
-                <h4 style="margin-right: 100px; font-size:12px;">@Html.DisplayFor(model => model.Location)</h4>
-                <h4 style="margin-right: 100px; font-size:12px;">@Html.DisplayFor(model => model.Created_By)</h4>
-            </div>
-
+        <dl class="row">            
             <dd class=" =col-sm-10">
         <style>
             table {
@@ -48,7 +42,7 @@
                 text-align:center;
             }
             td{
-                font-size:12px;
+                font-size:11px;
             }
             tr{
                 font-size:12px;
@@ -56,6 +50,10 @@
         </style>
         <table>
             <thead>
+                        <tr>
+                            <th><strong>@Html.DisplayFor(model => model.Date_Created)</strong></th>
+                            <th colspan="2" style="text-align:center;"><strong>IT DAILY CHECKS</strong></th>
+                        </tr>
                         <tr>
                             <th><strong>Browsing /Speedtest</strong></th>
                             <th colspan="2"><h7>Browse through the proxy and directly test the internet speed</h7></th>
@@ -115,7 +113,7 @@
                     <tr>
                         <th>Device Name</th>
                         <th>Description</th>
-                        <th>Status</th>
+                        <th>Result(s)</th>
 
                     </tr>
                             @foreach (var deviceCheck in filteredDeviceChecksGroup1)
@@ -175,8 +173,13 @@
                         <td>
                             @Html.DisplayFor(CCTVcheckViewModel => CCTVs.Results)
                         </td>                       
-                    </tr>
+                    </tr>                    
                 }
+                        <tr>
+                            <td></td>
+                            <td><strong>@Html.DisplayFor(model => model.Created_By)</strong></td>
+                            <td></td>
+                        </tr>
             </thead>
         </table>                
     </dd>            
