@@ -102,6 +102,7 @@ namespace ITDailyCheck.Controllers
                 Location = dailyCheck.Location,
                 Created_By = dailyCheck.Created_By,
                 Comments = dailyCheck.Comments,
+                SecondComment = dailyCheck.SecondComment,
                 Date_Created = dailyCheck.Date_Created,
                 ImageOneName = dailyCheck.ImageOneName,
                 ImageTwoName = dailyCheck.ImageTwoName,
@@ -156,6 +157,7 @@ namespace ITDailyCheck.Controllers
                 Location = dailyCheck.Location,
                 Created_By = dailyCheck.Created_By,
                 Comments = dailyCheck.Comments,
+                SecondComment = dailyCheck.SecondComment,
                 Date_Created = dailyCheck.Date_Created,
                 ImageOneName = dailyCheck.ImageOneName,
                 ImageTwoName = dailyCheck.ImageTwoName,
@@ -219,7 +221,7 @@ namespace ITDailyCheck.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DailyCheckViewModel model)
         {
-            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location && x.Comments == model.Comments).FirstOrDefault();
+            var dailycheck = _context.DailyChecks.Where(x => x.Date_Created.Date == DateTime.Now.Date && x.Location == model.Location && x.Comments == model.Comments && x.SecondComment == model.SecondComment).FirstOrDefault();
             if (dailycheck != null)
             {
                 TempData["Error"] = $"A Check has already been created for {model.Location}";
@@ -286,6 +288,7 @@ namespace ITDailyCheck.Controllers
                 ImageOneName = imageOneName,
                 ImageTwoName = imageTwoName,
                 Comments = model.Comments,
+                SecondComment = model.SecondComment,
                 UserPhoneNumber = userPhone == null ? "" : userPhone,
                 UserPosition = userPosition == null ? "" : userPosition,
                 UserEmail = userEmail == null ? "" : userEmail,
@@ -352,8 +355,8 @@ namespace ITDailyCheck.Controllers
             //email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
             email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
             email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));
-            //email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
-            //email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+            email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
+            email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();
@@ -437,6 +440,7 @@ namespace ITDailyCheck.Controllers
                 Location = dailyCheck.Location,
                 Created_By = dailyCheck.Created_By,
                 Comments = dailyCheck.Comments,
+                SecondComment = dailyCheck.SecondComment,
                 Date_Created = dailyCheck.Date_Created,
                 ImageOneName = dailyCheck.ImageOneName,
                 ImageTwoName = dailyCheck.ImageTwoName,
@@ -556,6 +560,7 @@ namespace ITDailyCheck.Controllers
                 // Update the properties of the DailyCheck
                 dailyCheck.Location = viewModel.Location;
                 dailyCheck.Comments = viewModel.Comments;
+                dailyCheck.SecondComment = viewModel.SecondComment;
                 dailyCheck.ImageUploadOne = dailyCheck.ImageUploadOne;
                 dailyCheck.ImageUploadTwo = dailyCheck.ImageUploadTwo;
 
