@@ -355,8 +355,8 @@ namespace ITDailyCheck.Controllers
             //email.From.Add(new MailboxAddress($"{user.FirstName} {user.LastName}", "francisopogah@gmail.com"));
             email.To.Add(MailboxAddress.Parse("itgroup@gmt-limited.com"));
             email.Cc.Add(MailboxAddress.Parse("ITGroup7843@gmtnigerialimited.onmicrosoft.com"));
-            email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
-            email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
+            //email.To.Add(MailboxAddress.Parse("fisayo.adegun@gmt-limited.com"));
+            //email.Cc.Add(MailboxAddress.Parse("francis.opogah@gmt-limited.com"));
             email.Subject = dailyCheck.Location == "Apapa" ? "DAILY CHECK" : dailyCheck.Location == "Abule-Oshun"
                 ? "OFFDOCK AND BMS DAILY CHECK" : "DAILY CHECK";
             var bodyBuilder = new BodyBuilder();
